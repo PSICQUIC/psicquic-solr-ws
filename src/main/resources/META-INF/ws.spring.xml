@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd"
+	default-autowire="byName">
+
+	<!-- Load CXF modules from cxf.jar -->
+	<import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxws.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+	<!-- Enable message logging using the CXF logging feature -->
+	<!--<cxf:bus>-->
+		<!--<cxf:features>-->
+			<!--<cxf:logging />-->
+		<!--</cxf:features>-->
+	<!--</cxf:bus>-->
+
+    <!--<bean name="restService10" class="org.hupo.psi.mi.psicquic.ws.legacy.IndexBasedPsicquicRestService10"/>
+    <bean name="restService11" class="org.hupo.psi.mi.psicquic.ws.legacy.IndexBasedPsicquicRestService11"/>
+    <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicRestService"/>-->
+
+	<!-- Service endpoint -->
+	<!-- See http://incubator.apache.org/cxf/faq.html regarding CXF + Spring AOP -->
+    <jaxws:endpoint xmlns:s="http://psi.hupo.org/mi/psicquic"
+                    id="psicquicService" serviceName="s:PsicquicService"
+		            implementorClass="org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService"
+		            implementor="#indexBasedPsicquicService" address="/psicquic">
+	</jaxws:endpoint>
+
+    <jaxrs:server id="psicquicRestService10" address="/v1.0">
+        <jaxrs:serviceBeans>
+            <ref bean="restService10"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="psicquicRestService11" address="/v1.1">
+        <jaxrs:serviceBeans>
+            <ref bean="restService11"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="psicquicRestService12" address="/v1.2">
+            <jaxrs:serviceBeans>
+                <ref bean="restService12"/>
+            </jaxrs:serviceBeans>
+        </jaxrs:server>
+
+    <jaxrs:server id="psicquicRestServiceCurrent" address="/current">
+        <jaxrs:serviceBeans>
+            <ref bean="restService12"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+</beans>
