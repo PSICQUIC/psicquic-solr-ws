@@ -16,7 +16,7 @@
 package org.hupo.psi.mi.psicquic.ws.utils;
 
 import org.hupo.psi.mi.psicquic.*;
-import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService;
+import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -89,7 +89,7 @@ public class PsicquicStreamingOutput implements StreamingOutput {
 
         int totalResults = -1;
         int max = firstResult + maxResults;
-        int blockSize = Math.min(IndexBasedPsicquicService.BLOCKSIZE_MAX, maxResults);
+        int blockSize = Math.min(SolrBasedPsicquicService.BLOCKSIZE_MAX, maxResults);
 
         do {
             reqInfo.setFirstResult(firstResult);

@@ -47,12 +47,14 @@ import java.util.*;
  */
 @Controller
 @Features(features = { "org.apache.cxf.transport.common.gzip.GZIPFeature" })
-public class IndexBasedPsicquicService implements PsicquicService {
+public class SolrBasedPsicquicService implements PsicquicService {
 
-    private final Logger logger = LoggerFactory.getLogger(IndexBasedPsicquicService.class);
+    private final Logger logger = LoggerFactory.getLogger(SolrBasedPsicquicService.class);
 
     private static final String RETURN_TYPE_XML25 = "psi-mi/xml25";
     private static final String RETURN_TYPE_MITAB25 = "psi-mi/tab25";
+    private static final String RETURN_TYPE_MITAB26 = "psi-mi/tab26";
+    private static final String RETURN_TYPE_MITAB27 = "psi-mi/tab27";
     private static final String RETURN_TYPE_COUNT = "count";
 
     private static final String NEW_LINE = System.getProperty("line.separator");
@@ -67,7 +69,7 @@ public class IndexBasedPsicquicService implements PsicquicService {
     @Autowired
     private PsicquicConfig config;
 
-    public IndexBasedPsicquicService() {
+    public SolrBasedPsicquicService() {
         BooleanQuery.setMaxClauseCount(200*1000);
     }
 

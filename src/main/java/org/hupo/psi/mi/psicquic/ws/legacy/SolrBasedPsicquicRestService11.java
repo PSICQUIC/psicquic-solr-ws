@@ -15,7 +15,7 @@
  */
 package org.hupo.psi.mi.psicquic.ws.legacy;
 
-import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicRestService;
+import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -23,5 +23,5 @@ import org.springframework.stereotype.Controller;
  * @version $Id$
  */
 @Controller
-public class IndexBasedPsicquicRestService11 extends IndexBasedPsicquicRestService {
+public class SolrBasedPsicquicRestService11 extends SolrBasedPsicquicRestService {
 }
