@@ -46,7 +46,7 @@ import java.util.*;
  */
 @Controller
 @Features(features = { "org.apache.cxf.transport.common.gzip.GZIPFeature" })
-public class IndexBasedPsicquicService implements PsicquicService {
+public class SolrBasedPsicquicService implements PsicquicService {
 
     private final Logger logger = LoggerFactory.getLogger(IndexBasedPsicquicService.class);
 

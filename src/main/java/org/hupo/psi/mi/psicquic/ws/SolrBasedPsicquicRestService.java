@@ -48,7 +48,7 @@ import java.util.Map;
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Controller
-public class IndexBasedPsicquicRestService implements PsicquicRestService {
+public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
     public static final String RETURN_TYPE_XML25 = "xml25";
     public static final String RETURN_TYPE_MITAB25 = "tab25";

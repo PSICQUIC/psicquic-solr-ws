@@ -37,7 +37,7 @@ import java.util.List;
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Controller
-public class IndexBasedPsicquicRestService10 implements PsicquicRestService10 {
+public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
      @Autowired
     private PsicquicConfig config;
