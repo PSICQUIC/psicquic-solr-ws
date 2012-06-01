@@ -348,7 +348,7 @@ public class IndexBasedPsicquicRestService implements PsicquicRestService {
         return config.getVersion();
     }
 
-    public psidev.psi.mi.xml254.jaxb.EntrySet getByQueryXml(String query,
+    public EntrySet getByQueryXml(String query,
                                   int firstResult,
                                   int maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         RequestInfo reqInfo = new RequestInfo();

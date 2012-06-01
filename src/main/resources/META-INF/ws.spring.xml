@@ -37,7 +37,7 @@
     <jaxws:endpoint xmlns:s="http://psi.hupo.org/mi/psicquic"
                     id="psicquicService" serviceName="s:PsicquicService"
 		            implementorClass="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService"
-		            implementor="#solrBasedPsicquicService" address="/psicquic">
+		            implementor="#indexBasedPsicquicService" address="/psicquic">
 	</jaxws:endpoint>
 
     <jaxrs:server id="psicquicRestService10" address="/v1.0">
