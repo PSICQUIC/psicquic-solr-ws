@@ -79,7 +79,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             RETURN_TYPE_RDF_TURTLE,
             RETURN_TYPE_COUNT);
 
-    public IndexBasedPsicquicRestService() {
+    public SolrBasedPsicquicRestService() {
     }
 
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {

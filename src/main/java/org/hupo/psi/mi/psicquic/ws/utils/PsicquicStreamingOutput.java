@@ -15,7 +15,7 @@
  */
 package org.hupo.psi.mi.psicquic.ws.utils;
 
-import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService;
+import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;

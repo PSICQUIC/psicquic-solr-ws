@@ -34,6 +34,7 @@ import psidev.psi.mi.xml254.jaxb.Attribute;
 import psidev.psi.mi.xml254.jaxb.AttributeList;
 import psidev.psi.mi.xml254.jaxb.Entry;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
+import org.apache.solr.client.solrj;
 
 import java.io.IOException;
 import java.util.*;
@@ -144,37 +145,46 @@ public class SolrBasedPsicquicService implements PsicquicService {
         if (resultType != null && !getSupportedReturnTypes().contains(resultType)) {
             throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+getSupportedReturnTypes());
         }
-
-//        if (!new File(config.getIndexDirectory()).exists()) {
-//            throw new PsicquicServiceException("Lucene directory does not exist: "+config.getIndexDirectory());
-//        }
-
-        logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
-
-        SearchEngine searchEngine;
         
-        try {
-            searchEngine = new BinaryInteractionSearchEngine(config.getIndexDirectory());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
+        logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
+        
+       
+        //SolrJ implementation
+        String solrServer = new HttpSolrServer("http://localhost:8989/solr/");
+        SolrQuery query = new SolrQuery();
+        query.setQuery(query);
+        QueryResponse rsp = solrServer.query( query );
+        SolrDocumentList docs = rsp.getResults();
+       
+        Iterator<SolrDocument> iter = queryResponse.getResults().iterator();
+        while (iter.hasNext()) {
+        	System.out.println(iter.next());
         }
 
-        SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
-
-        // preparing the response
-        QueryResponse queryResponse = new QueryResponse();
-        ResultInfo resultInfo = new ResultInfo();
-        resultInfo.setBlockSize(blockSize);
-        resultInfo.setFirstResult(requestInfo.getFirstResult());
-        resultInfo.setTotalResults(searchResult.getTotalCount());
-
-        queryResponse.setResultInfo(resultInfo);
-
-        ResultSet resultSet = createResultSet(query, searchResult, requestInfo);
-        queryResponse.setResultSet(resultSet);
-
-        return queryResponse;
+//        SearchEngine searchEngine;
+//        
+//        try {
+//            searchEngine = new BinaryInteractionSearchEngine(config.getIndexDirectory());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
+//        }
+//
+//        SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
+//
+//        // preparing the response
+//        QueryResponse queryResponse = new QueryResponse();
+//        ResultInfo resultInfo = new ResultInfo();
+//        resultInfo.setBlockSize(blockSize);
+//        resultInfo.setFirstResult(requestInfo.getFirstResult());
+//        resultInfo.setTotalResults(searchResult.getTotalCount());
+//
+//        queryResponse.setResultInfo(resultInfo);
+//
+//        ResultSet resultSet = createResultSet(query, searchResult, requestInfo);
+//        queryResponse.setResultSet(resultSet);
+//
+//        return queryResponse;
     }
 
     public String getVersion() {
