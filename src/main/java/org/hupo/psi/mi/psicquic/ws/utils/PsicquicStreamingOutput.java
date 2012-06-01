@@ -15,7 +15,8 @@
  */
 package org.hupo.psi.mi.psicquic.ws.utils;
 
-import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
+import org.hupo.psi.mi.psicquic.*;
+import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -49,10 +50,10 @@ public class PsicquicStreamingOutput implements StreamingOutput {
         this.firstResult = firstResult;
         this.maxResults = maxResults;
         this.gzip = gzip;
-        
+
 
     }
-    
+
     public int countResults() throws IOException {
         int results = 0;
 
