@@ -28,16 +28,16 @@
 		<!--</cxf:features>-->
 	<!--</cxf:bus>-->
 
-    <!--<bean name="restService10" class="org.hupo.psi.mi.psicquic.ws.legacy.IndexBasedPsicquicRestService10"/>
-    <bean name="restService11" class="org.hupo.psi.mi.psicquic.ws.legacy.IndexBasedPsicquicRestService11"/>
-    <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicRestService"/>-->
+    <bean name="restService10" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService10"/>
+    <bean name="restService11" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService11"/>
+    <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService"/>
 
 	<!-- Service endpoint -->
 	<!-- See http://incubator.apache.org/cxf/faq.html regarding CXF + Spring AOP -->
     <jaxws:endpoint xmlns:s="http://psi.hupo.org/mi/psicquic"
                     id="psicquicService" serviceName="s:PsicquicService"
-		            implementorClass="org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService"
-		            implementor="#indexBasedPsicquicService" address="/psicquic">
+		            implementorClass="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService"
+		            implementor="#solrBasedPsicquicService" address="/psicquic">
 	</jaxws:endpoint>
 
     <jaxrs:server id="psicquicRestService10" address="/v1.0">

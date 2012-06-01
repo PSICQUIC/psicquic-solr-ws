@@ -17,6 +17,7 @@ package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.cxf.feature.Features;
 import org.apache.lucene.search.BooleanQuery;
+import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,6 @@ import psidev.psi.mi.xml254.jaxb.Attribute;
 import psidev.psi.mi.xml254.jaxb.AttributeList;
 import psidev.psi.mi.xml254.jaxb.Entry;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
-import org.apache.solr.client.solrj;
 
 import java.io.IOException;
 import java.util.*;
@@ -43,11 +43,11 @@ import java.util.*;
  * This web service is based on a PSIMITAB lucene's directory to search and return the results.
  *
  * @author Bruno Aranda (baranda@ebi.ac.uk)
- * @version $Id$
+ * @version $Id: IndexBasedPsicquicService.java 1048 2012-06-01 14:54:23Z mdumousseau@yahoo.com $
  */
 @Controller
 @Features(features = { "org.apache.cxf.transport.common.gzip.GZIPFeature" })
-public class SolrBasedPsicquicService implements PsicquicService {
+public class IndexBasedPsicquicService implements PsicquicService {
 
     private final Logger logger = LoggerFactory.getLogger(IndexBasedPsicquicService.class);
 
@@ -145,46 +145,37 @@ public class SolrBasedPsicquicService implements PsicquicService {
         if (resultType != null && !getSupportedReturnTypes().contains(resultType)) {
             throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+getSupportedReturnTypes());
         }
-        
+
+//        if (!new File(config.getIndexDirectory()).exists()) {
+//            throw new PsicquicServiceException("Lucene directory does not exist: "+config.getIndexDirectory());
+//        }
+
         logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
+
+        SearchEngine searchEngine;
         
-       
-        //SolrJ implementation
-        String solrServer = new HttpSolrServer("http://localhost:8989/solr/");
-        SolrQuery query = new SolrQuery();
-        query.setQuery(query);
-        QueryResponse rsp = solrServer.query( query );
-        SolrDocumentList docs = rsp.getResults();
-       
-        Iterator<SolrDocument> iter = queryResponse.getResults().iterator();
-        while (iter.hasNext()) {
-        	System.out.println(iter.next());
+        try {
+            searchEngine = new BinaryInteractionSearchEngine(config.getIndexDirectory());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
         }
 
-//        SearchEngine searchEngine;
-//        
-//        try {
-//            searchEngine = new BinaryInteractionSearchEngine(config.getIndexDirectory());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
-//        }
-//
-//        SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
-//
-//        // preparing the response
-//        QueryResponse queryResponse = new QueryResponse();
-//        ResultInfo resultInfo = new ResultInfo();
-//        resultInfo.setBlockSize(blockSize);
-//        resultInfo.setFirstResult(requestInfo.getFirstResult());
-//        resultInfo.setTotalResults(searchResult.getTotalCount());
-//
-//        queryResponse.setResultInfo(resultInfo);
-//
-//        ResultSet resultSet = createResultSet(query, searchResult, requestInfo);
-//        queryResponse.setResultSet(resultSet);
-//
-//        return queryResponse;
+        SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
+
+        // preparing the response
+        QueryResponse queryResponse = new QueryResponse();
+        ResultInfo resultInfo = new ResultInfo();
+        resultInfo.setBlockSize(blockSize);
+        resultInfo.setFirstResult(requestInfo.getFirstResult());
+        resultInfo.setTotalResults(searchResult.getTotalCount());
+
+        queryResponse.setResultInfo(resultInfo);
+
+        ResultSet resultSet = createResultSet(query, searchResult, requestInfo);
+        queryResponse.setResultSet(resultSet);
+
+        return queryResponse;
     }
 
     public String getVersion() {

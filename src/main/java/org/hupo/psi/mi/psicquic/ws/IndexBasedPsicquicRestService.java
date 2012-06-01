@@ -20,6 +20,7 @@ import org.hupo.psi.calimocho.io.DocumentConverter;
 import org.hupo.psi.calimocho.model.DocumentDefinition;
 import org.hupo.psi.calimocho.tab.util.MitabDocumentDefinitionFactory;
 import org.hupo.psi.calimocho.xgmml.XGMMLDocumentDefinition;
+import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
@@ -48,7 +49,7 @@ import java.util.Map;
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Controller
-public class SolrBasedPsicquicRestService implements PsicquicRestService {
+public class IndexBasedPsicquicRestService implements PsicquicRestService {
 
     public static final String RETURN_TYPE_XML25 = "xml25";
     public static final String RETURN_TYPE_MITAB25 = "tab25";
@@ -79,7 +80,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             RETURN_TYPE_RDF_TURTLE,
             RETURN_TYPE_COUNT);
 
-    public SolrBasedPsicquicRestService() {
+    public IndexBasedPsicquicRestService() {
     }
 
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
@@ -347,7 +348,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         return config.getVersion();
     }
 
-    public EntrySet getByQueryXml(String query,
+    public psidev.psi.mi.xml254.jaxb.EntrySet getByQueryXml(String query,
                                   int firstResult,
                                   int maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         RequestInfo reqInfo = new RequestInfo();

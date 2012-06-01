@@ -16,6 +16,7 @@
 package org.hupo.psi.mi.psicquic.ws.legacy;
 
 import org.apache.commons.lang.StringUtils;
+import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.IndexBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
@@ -37,7 +38,7 @@ import java.util.List;
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Controller
-public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
+public class IndexBasedPsicquicRestService10 implements PsicquicRestService10 {
 
      @Autowired
     private PsicquicConfig config;

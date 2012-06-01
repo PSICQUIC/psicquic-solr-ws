@@ -12,5 +12,17 @@
     <context:component-scan base-package="org.hupo.psi.mi.psicquic.ws"/>
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
+    
+    <bean name="psicquicConfig" class="org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig">
+        <property name="groupId" value="${pom.groupId}"/>
+        <property name="artifactId" value="${pom.artifactId}"/>
+        <property name="version" value="${pom.version}"/>
+        <property name="soapSpecVersion" value="1.1"/>
+        <property name="restSpecVersion" value="1.2"/>
+        <property name="indexDirectory" value="${psicquic.index}"/>
+        <property name="propertiesAsStrings" value="${psicquic.properties}"/>
+        <property name="queryFilter" value="${psicquic.filter}"/>
+        <property name="implementationName" value="Reference Implementation"/>
+    </bean>
+   
 </beans>
