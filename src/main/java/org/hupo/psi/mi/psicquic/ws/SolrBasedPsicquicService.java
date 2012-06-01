@@ -17,7 +17,11 @@ package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.cxf.feature.Features;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.slf4j.Logger;
@@ -25,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.search.SearchResult;
-import psidev.psi.mi.search.engine.SearchEngine;
-import psidev.psi.mi.search.engine.impl.BinaryInteractionSearchEngine;
 import psidev.psi.mi.tab.converter.tab2xml.Tab2Xml;
 import psidev.psi.mi.tab.model.BinaryInteraction;
 import psidev.psi.mi.tab.model.builder.MitabDocumentDefinition;
@@ -37,7 +39,6 @@ import psidev.psi.mi.xml254.jaxb.AttributeList;
 import psidev.psi.mi.xml254.jaxb.Entry;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -172,18 +173,25 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
         logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
 
-        SearchEngine searchEngine;
-        
-        try {
-            searchEngine = new BinaryInteractionSearchEngine(config.getIndexDirectory());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
-        }
-
         HttpSolrServer solrServer = getSolrServer();
 
-        SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
+        SolrQuery querySolr = new SolrQuery();
+        querySolr.setQuery(query);
+        org.apache.solr.client.solrj.response.QueryResponse queryResponseSolr;
+        try {
+            queryResponseSolr = solrServer.query(querySolr);
+        } catch (SolrServerException e) {
+            throw new PsicquicServiceException("Problem searching with query: "+query, e);
+        }
+
+        SolrDocumentList docs = queryResponseSolr.getResults();
+
+        Iterator<SolrDocument> iter = queryResponseSolr.getResults().iterator();
+        while (iter.hasNext()) {
+            System.out.println(iter.next());
+        }
+
+        SearchResult searchResult = null;//;searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
 
         // preparing the response
         QueryResponse queryResponse = new QueryResponse();
