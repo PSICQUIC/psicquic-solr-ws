@@ -25,6 +25,7 @@
 
         <psicquic.index>${basedir}/target/psicquic-index</psicquic.index>
         <psicquic.properties/>
+        <solr.url>http://localhost:8989/solr/</solr.url>
 
         <psicquic.filter/>
     </properties>

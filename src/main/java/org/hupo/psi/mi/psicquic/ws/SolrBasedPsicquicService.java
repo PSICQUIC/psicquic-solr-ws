@@ -17,6 +17,7 @@ package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.cxf.feature.Features;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.slf4j.Logger;
@@ -63,14 +64,31 @@ public class SolrBasedPsicquicService implements PsicquicService {
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
 
     public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(RETURN_TYPE_XML25,
-            RETURN_TYPE_MITAB25, RETURN_TYPE_COUNT);
+            RETURN_TYPE_MITAB25, RETURN_TYPE_MITAB26, RETURN_TYPE_MITAB27, RETURN_TYPE_COUNT);
 
 
     @Autowired
     private PsicquicConfig config;
 
+    private HttpSolrServer solrServer;
+
     public SolrBasedPsicquicService() {
         BooleanQuery.setMaxClauseCount(200*1000);
+    }
+
+    public HttpSolrServer getSolrServer() {
+        if (solrServer == null) {
+            solrServer = new HttpSolrServer(config.getSolrUrl());
+
+            solrServer.setMaxTotalConnections(128);
+            solrServer.setDefaultMaxConnectionsPerHost(32);
+            solrServer.setConnectionTimeout(100 * 1000);
+            solrServer.setSoTimeout(100 * 1000);
+            solrServer.setAllowCompression(true);
+        }
+
+        return solrServer;
+
     }
 
     public QueryResponse getByInteractor(DbRef dbRef, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
@@ -162,6 +180,8 @@ public class SolrBasedPsicquicService implements PsicquicService {
             e.printStackTrace();
             throw new PsicquicServiceException("Problem creating SearchEngine using directory: "+config.getIndexDirectory(), e);
         }
+
+        HttpSolrServer solrServer = getSolrServer();
 
         SearchResult searchResult = searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
 
