@@ -17,27 +17,15 @@ package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.cxf.feature.Features;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
+import org.hupo.psi.mi.psicquic.ws.model.PsicquicSolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import psidev.psi.mi.search.SearchResult;
-import psidev.psi.mi.tab.converter.tab2xml.Tab2Xml;
-import psidev.psi.mi.tab.model.BinaryInteraction;
-import psidev.psi.mi.tab.model.builder.MitabDocumentDefinition;
-import psidev.psi.mi.xml.converter.impl254.EntrySetConverter;
-import psidev.psi.mi.xml.dao.inMemory.InMemoryDAOFactory;
-import psidev.psi.mi.xml254.jaxb.Attribute;
-import psidev.psi.mi.xml254.jaxb.AttributeList;
-import psidev.psi.mi.xml254.jaxb.Entry;
-import psidev.psi.mi.xml254.jaxb.EntrySet;
+import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 
 import java.util.*;
 
@@ -53,13 +41,20 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
     private final Logger logger = LoggerFactory.getLogger(SolrBasedPsicquicService.class);
 
-    private static final String RETURN_TYPE_XML25 = "psi-mi/xml25";
-    private static final String RETURN_TYPE_MITAB25 = "psi-mi/tab25";
-    private static final String RETURN_TYPE_MITAB26 = "psi-mi/tab26";
-    private static final String RETURN_TYPE_MITAB27 = "psi-mi/tab27";
-    private static final String RETURN_TYPE_COUNT = "count";
+    // settings SOLRServer 
+    private static int maxTotalConnections = 128;
+    private static int defaultMaxConnectionsPerHost = 32;
+    private static int connectionTimeOut = 100000;
+    private static int soTimeOut = 100000;
+    private static boolean allowCompression = true;
 
-    private static final String NEW_LINE = System.getProperty("line.separator");
+    public static final String RETURN_TYPE_XML25 = "psi-mi/xml25";
+    public static final String RETURN_TYPE_MITAB25 = "psi-mi/tab25";
+    public static final String RETURN_TYPE_MITAB26 = "psi-mi/tab26";
+    public static final String RETURN_TYPE_MITAB27 = "psi-mi/tab27";
+    public static final String RETURN_TYPE_COUNT = "count";
+
+    public static final String NEW_LINE = System.getProperty("line.separator");
 
     public static final int BLOCKSIZE_MAX = 200;
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
@@ -71,29 +66,31 @@ public class SolrBasedPsicquicService implements PsicquicService {
     @Autowired
     private PsicquicConfig config;
 
-    private HttpSolrServer solrServer;
+    private PsicquicSolrServer psicquicSolrServer;
 
     public SolrBasedPsicquicService() {
         BooleanQuery.setMaxClauseCount(200*1000);
     }
 
-    public HttpSolrServer getSolrServer() {
-        if (solrServer == null) {
-            solrServer = new HttpSolrServer(config.getSolrUrl());
+    public PsicquicSolrServer getPsicquicSolrServer() {
+        if (psicquicSolrServer == null) {
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl());
 
-            solrServer.setMaxTotalConnections(128);
-            solrServer.setDefaultMaxConnectionsPerHost(32);
-            solrServer.setConnectionTimeout(100 * 1000);
-            solrServer.setSoTimeout(100 * 1000);
-            solrServer.setAllowCompression(true);
+            solrServer.setMaxTotalConnections(maxTotalConnections);
+            solrServer.setDefaultMaxConnectionsPerHost(defaultMaxConnectionsPerHost);
+            solrServer.setConnectionTimeout(connectionTimeOut);
+            solrServer.setSoTimeout(soTimeOut);
+            solrServer.setAllowCompression(allowCompression);
+
+            psicquicSolrServer = new PsicquicSolrServer(solrServer);
         }
 
-        return solrServer;
+        return psicquicSolrServer;
 
     }
 
     public QueryResponse getByInteractor(DbRef dbRef, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
-        String query = createQuery("identifiers", dbRef);
+        String query = createQuery(SolrFieldName.identifier.toString(), dbRef);
 
         return getByQuery(query, requestInfo);
     }
@@ -101,19 +98,19 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
 
     public QueryResponse getByInteraction(DbRef dbRef, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
-        String query = createQuery("interaction_id", dbRef);
+        String query = createQuery(SolrFieldName.interaction_id.toString(), dbRef);
 
         return getByQuery(query, requestInfo);
     }
 
     public QueryResponse getByInteractorList(List<DbRef> dbRefs, RequestInfo requestInfo, String operand) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
-        String query = createQuery("identifiers", dbRefs, operand);
+        String query = createQuery(SolrFieldName.identifier.toString(), dbRefs, operand);
 
         return getByQuery(query, requestInfo);
     }
 
     public QueryResponse getByInteractionList(List<DbRef> dbRefs, RequestInfo requestInfo) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        String query = createQuery("interaction_id", dbRefs, "OR");
+        String query = createQuery(SolrFieldName.interaction_id.toString(), dbRefs, "OR");
 
         return getByQuery(query, requestInfo);
     }
@@ -167,43 +164,13 @@ public class SolrBasedPsicquicService implements PsicquicService {
             throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+getSupportedReturnTypes());
         }
 
-//        if (!new File(config.getIndexDirectory()).exists()) {
-//            throw new PsicquicServiceException("Lucene directory does not exist: "+config.getIndexDirectory());
-//        }
-
         logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
 
-        HttpSolrServer solrServer = getSolrServer();
+        PsicquicSolrServer solrServer = getPsicquicSolrServer();
 
-        SolrQuery querySolr = new SolrQuery();
-        querySolr.setQuery(query);
-        org.apache.solr.client.solrj.response.QueryResponse queryResponseSolr;
-        try {
-            queryResponseSolr = solrServer.query(querySolr);
-        } catch (SolrServerException e) {
-            throw new PsicquicServiceException("Problem searching with query: "+query, e);
-        }
-
-        SolrDocumentList docs = queryResponseSolr.getResults();
-
-        Iterator<SolrDocument> iter = queryResponseSolr.getResults().iterator();
-        while (iter.hasNext()) {
-            System.out.println(iter.next());
-        }
-
-        SearchResult searchResult = null;//;searchEngine.search(query, requestInfo.getFirstResult(), blockSize);
 
         // preparing the response
-        QueryResponse queryResponse = new QueryResponse();
-        ResultInfo resultInfo = new ResultInfo();
-        resultInfo.setBlockSize(blockSize);
-        resultInfo.setFirstResult(requestInfo.getFirstResult());
-        resultInfo.setTotalResults(searchResult.getTotalCount());
-
-        queryResponse.setResultInfo(resultInfo);
-
-        ResultSet resultSet = createResultSet(query, searchResult, requestInfo);
-        queryResponse.setResultSet(resultSet);
+        QueryResponse queryResponse = solrServer.search(query, requestInfo.getFirstResult(), blockSize, requestInfo.getResultType());
 
         return queryResponse;
     }
@@ -237,91 +204,44 @@ public class SolrBasedPsicquicService implements PsicquicService {
         return properties;
     }
 
-    protected ResultSet createResultSet(String query, SearchResult searchResult, RequestInfo requestInfo) throws PsicquicServiceException,
-                                                                                                   NotSupportedTypeException {
-        ResultSet resultSet = new ResultSet();
-
-        String resultType = (requestInfo.getResultType() != null)? requestInfo.getResultType() : RETURN_TYPE_DEFAULT;
-
-        if (RETURN_TYPE_MITAB25.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI TAB");
-
-            String mitab = createMitabResults(searchResult);
-            resultSet.setMitab(mitab);
-        } else if (RETURN_TYPE_XML25.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
-
-            EntrySet jEntrySet = createEntrySet(searchResult);
-            resultSet.setEntrySet(jEntrySet);
-
-            // add some annotations
-            if (!jEntrySet.getEntries().isEmpty()) {
-                AttributeList attrList = new AttributeList();
-
-                Entry entry = jEntrySet.getEntries().iterator().next();
-
-                Attribute attr = new Attribute();
-                attr.setValue("Data retrieved using the PSICQUIC service. Query: "+query);
-                attrList.getAttributes().add(attr);
-
-                Attribute attr2 = new Attribute();
-                attr2.setValue("Total results found: "+searchResult.getTotalCount());
-                attrList.getAttributes().add(attr2);
-
-                // add warning if the batch size requested is higher than the maximum allowed
-                if (requestInfo.getBlockSize() > BLOCKSIZE_MAX && BLOCKSIZE_MAX < searchResult.getTotalCount()) {
-                    Attribute attrWarning = new Attribute();
-                    attrWarning.setValue("Warning: The requested block size (" + requestInfo.getBlockSize() + ") was higher than the maximum allowed (" + BLOCKSIZE_MAX + ") by PSICQUIC the service. " +
-                            BLOCKSIZE_MAX + " results were returned from a total found of "+searchResult.getTotalCount());
-                    attrList.getAttributes().add(attrWarning);
-
-                }
-
-                entry.setAttributeList(attrList);
-            }
-
-        } else if (RETURN_TYPE_COUNT.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Count query");
-            // nothing to be done here
-        } else {
-            throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+getSupportedReturnTypes());
-        }
-
-        return resultSet;
+    public static int getMaxTotalConnections() {
+        return maxTotalConnections;
     }
 
-    protected String createMitabResults(SearchResult searchResult) {
-        MitabDocumentDefinition docDef = new MitabDocumentDefinition();
-
-        List<BinaryInteraction> binaryInteractions = searchResult.getData();
-
-        StringBuilder sb = new StringBuilder(binaryInteractions.size() * 512);
-
-        for (BinaryInteraction binaryInteraction : binaryInteractions) {
-            String binaryInteractionString = docDef.interactionToString(binaryInteraction);
-            sb.append(binaryInteractionString);
-            sb.append(NEW_LINE);
-        }
-        return sb.toString();
+    public static void setMaxTotalConnections(int maxTotalConnections) {
+        SolrBasedPsicquicService.maxTotalConnections = maxTotalConnections;
     }
 
-    private EntrySet createEntrySet(SearchResult searchResult) throws PsicquicServiceException {
-        if (searchResult.getData().isEmpty()) {
-            return new EntrySet();
-        }
+    public static int getDefaultMaxConnectionsPerHost() {
+        return defaultMaxConnectionsPerHost;
+    }
 
-        Tab2Xml tab2Xml = new Tab2Xml();
-        try {
-            psidev.psi.mi.xml.model.EntrySet mEntrySet = tab2Xml.convert(searchResult.getData());
+    public static void setDefaultMaxConnectionsPerHost(int defaultMaxConnectionsPerHost) {
+        SolrBasedPsicquicService.defaultMaxConnectionsPerHost = defaultMaxConnectionsPerHost;
+    }
 
-            EntrySetConverter converter = new EntrySetConverter();
-            converter.setDAOFactory(new InMemoryDAOFactory());
+    public static int getConnectionTimeOut() {
+        return connectionTimeOut;
+    }
 
-            return converter.toJaxb(mEntrySet);
+    public static void setConnectionTimeOut(int connectionTimeOut) {
+        SolrBasedPsicquicService.connectionTimeOut = connectionTimeOut;
+    }
 
-        } catch (Exception e) {
-            throw new PsicquicServiceException("Problem converting results to PSI-MI XML", e);
-        }
+    public static int getSoTimeOut() {
+        return soTimeOut;
+    }
+
+    public static void setSoTimeOut(int soTimeOut) {
+        SolrBasedPsicquicService.soTimeOut = soTimeOut;
+    }
+
+    public static boolean isAllowCompression() {
+        return allowCompression;
+    }
+
+    public static void setAllowCompression(boolean allowCompression) {
+        SolrBasedPsicquicService.allowCompression = allowCompression;
     }
 }
 
