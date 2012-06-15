@@ -77,7 +77,7 @@ public class PsicquicStreamingOutput implements StreamingOutput {
 
     public void write(OutputStream outputStream) throws IOException, WebApplicationException {
         RequestInfo reqInfo = new RequestInfo();
-        reqInfo.setResultType("psi-mi/tab25");
+        reqInfo.setResultType(formatType);
 
         OutputStream os;
 

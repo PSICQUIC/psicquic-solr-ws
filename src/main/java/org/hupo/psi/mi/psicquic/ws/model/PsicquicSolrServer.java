@@ -218,6 +218,7 @@ public class PsicquicSolrServer {
         ResultInfo resultInfo = new ResultInfo();
         resultInfo.setBlockSize(query.getRows());
         resultInfo.setFirstResult(query.getStart());
+        resultInfo.setResultType(returnType);
         // convert safely long to int using Google Guava's Ints
         try{
             resultInfo.setTotalResults(Ints.checkedCast(docs.getNumFound()));
