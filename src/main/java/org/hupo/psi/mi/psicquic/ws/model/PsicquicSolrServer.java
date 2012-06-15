@@ -124,7 +124,7 @@ public class PsicquicSolrServer {
         solrFields.put(RETURN_TYPE_COUNT, new String[] {});
     }
 
-    public QueryResponse search(String query, Integer firstResult, Integer maxResults, String returnType) throws PsicquicServiceException {
+    public QueryResponse search(String query, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
         if (query == null) throw new NullPointerException("Null query");
 
         // format wildcard query
@@ -153,27 +153,31 @@ public class PsicquicSolrServer {
         if (returnType == null){
              returnType = RETURN_TYPE_DEFAULT;
         }
+
+        // apply any filter
+        if (queryFilter != null && !queryFilter.isEmpty()) {
+            solrQuery.addFilterQuery(queryFilter.trim());
+        }
         return search(solrQuery, returnType);
     }
 
     private QueryResponse search(SolrQuery originalQuery, String returnType) throws PsicquicServiceException {
-        SolrQuery query = originalQuery.getCopy();
 
         String[] fields = solrFields.containsKey(returnType) ? solrFields.get(returnType) : new String[]{};
 
-        if(query.getFields()!=null){
+        if(originalQuery.getFields()!=null){
             // new array created here so the map solrFields is never changed
-            fields = (String[]) ArrayUtils.add(fields, query.getFields().split(","));
+            fields = (String[]) ArrayUtils.add(fields, originalQuery.getFields().split(","));
         }
 
-        query.setFields(fields);
+        originalQuery.setFields(fields);
 
         // if using a wildcard query we convert to lower case
         // as of http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200903.mbox/%3CFD3AFB65-AEC1-40B2-A0A4-7E14A519AB05@ehatchersolutions.com%3E
-        if (query.getQuery().contains("*")) {
-            String[] tokens = query.getQuery().split(" ");
+        if (originalQuery.getQuery().contains("*")) {
+            String[] tokens = originalQuery.getQuery().split(" ");
 
-            StringBuilder sb = new StringBuilder(query.getQuery().length());
+            StringBuilder sb = new StringBuilder(originalQuery.getQuery().length());
 
             for (String token : tokens) {
                 if (token.contains("*")) {
@@ -185,13 +189,13 @@ public class PsicquicSolrServer {
                 sb.append(" ");
             }
 
-            query.setQuery(sb.toString().trim());
+            originalQuery.setQuery(sb.toString().trim());
         }
 
         QueryResponse queryResponse = null;
 
         try {
-            queryResponse = executeQuery(query, returnType);
+            queryResponse = executeQuery(originalQuery, returnType);
         } catch (SolrServerException e) {
             throw new PsicquicServiceException("Problem executing the query", e);
         } catch (NotSupportedTypeException e) {
