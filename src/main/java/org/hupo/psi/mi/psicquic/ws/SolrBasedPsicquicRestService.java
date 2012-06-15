@@ -237,17 +237,17 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
                            result.countResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB26);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicService.RETURN_TYPE_MITAB26);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
                             result.countResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB27);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicService.RETURN_TYPE_MITAB27);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
                             result.countResults(), isCompressed).build();
                 }else {

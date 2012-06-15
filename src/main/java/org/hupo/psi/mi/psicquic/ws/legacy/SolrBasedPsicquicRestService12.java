@@ -9,6 +9,7 @@ import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
 import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
 import org.hupo.psi.mi.psicquic.PsicquicServiceException;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
+import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.hupo.psi.mi.rdf.PsimiRdfConverter;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -126,7 +127,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
                     return count(query);
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults), SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults), SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
 
                     count = result.countResults();
 
@@ -162,7 +163,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
                             result.countResults(), isCompressed).build();
                 } else {

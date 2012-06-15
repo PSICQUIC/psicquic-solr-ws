@@ -86,10 +86,10 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else if (SolrBasedPsicquicRestService.RETURN_TYPE_COUNT.equals(format)) {
             return count(query);
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN).equals(format)) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, true, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, true, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
             return Response.status(200).type("application/x-gzip").entity(result).build();
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
             return Response.status(200).type(MediaType.TEXT_PLAIN).entity(result).build();
         } else {
             return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported").build();

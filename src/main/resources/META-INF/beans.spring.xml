@@ -23,7 +23,7 @@
         <property name="propertiesAsStrings" value="${psicquic.properties}"/>
         <property name="queryFilter" value="${psicquic.filter}"/>
         <property name="implementationName" value="Reference Implementation"/>
-        <property name="solrUrl" value="solr.url"/>
+        <property name="solrUrl" value="${solr.url}"/>
     </bean>
    
 </beans>
