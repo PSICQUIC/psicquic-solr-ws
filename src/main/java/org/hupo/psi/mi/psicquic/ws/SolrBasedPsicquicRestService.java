@@ -28,6 +28,7 @@ import org.hupo.psi.mi.rdf.PsimiRdfConverter;
 import org.hupo.psi.mi.rdf.RdfFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml.converter.impl254.EntrySetConverter;
 import psidev.psi.mi.xml.dao.inMemory.InMemoryDAOFactory;
@@ -54,6 +55,10 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final String RETURN_TYPE_XML25 = "xml25";
     public static final String RETURN_TYPE_MITAB25 = "tab25";
     public static final String RETURN_TYPE_MITAB25_BIN = "tab25-bin";
+    public static final String RETURN_TYPE_MITAB26 = "tab26";
+    public static final String RETURN_TYPE_MITAB26_BIN = "tab26-bin";
+    public static final String RETURN_TYPE_MITAB27 = "tab27";
+    public static final String RETURN_TYPE_MITAB27_BIN = "tab27-bin";
     public static final String RETURN_TYPE_BIOPAX = "biopax";
     public static final String RETURN_TYPE_XGMML = "xgmml";
     public static final String RETURN_TYPE_RDF_XML = "rdf-xml";
@@ -61,13 +66,13 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final String RETURN_TYPE_RDF_N3 = "rdf-n3";
     public static final String RETURN_TYPE_RDF_TURTLE = "rdf-turtle";
     public static final String RETURN_TYPE_COUNT = "count";
-    private static final int MAX_XGMML_INTERACTIONS = 5000;
+    protected static final int MAX_XGMML_INTERACTIONS = 5000;
 
     @Autowired
-    private PsicquicConfig config;
+    protected PsicquicConfig config;
 
     @Autowired
-    private PsicquicService psicquicService;
+    protected PsicquicService psicquicService;
 
     public static final List<String> SUPPORTED_REST_RETURN_TYPES = Arrays.asList(
             RETURN_TYPE_XML25,
@@ -84,12 +89,12 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     }
 
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        String query = "identifier:"+createQueryValue(interactorAc, db);
+        String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults, compressed);
     }
 
     public Object getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        String query = "interaction_id:"+createQueryValue(interactionAc, db);
+        String query = SolrFieldName.interaction_id.toString()+":"+createQueryValue(interactionAc, db);
         return getByQuery(query, format, firstResult, maxResults, compressed);
     }
 
@@ -128,6 +133,14 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             format = RETURN_TYPE_MITAB25;
             isCompressed = true;
         }
+        else if (RETURN_TYPE_MITAB26_BIN.equalsIgnoreCase(format)) {
+            format = RETURN_TYPE_MITAB26;
+            isCompressed = true;
+        }
+        else if (RETURN_TYPE_MITAB26_BIN.equalsIgnoreCase(format)) {
+            format = RETURN_TYPE_MITAB26;
+            isCompressed = true;
+        }
 
         try {
             if (RETURN_TYPE_XML25.equalsIgnoreCase(format)) {
@@ -146,75 +159,98 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                 psidev.psi.mi.xml.model.EntrySet entrySet = createEntrySet(query, firstResult, maxResults);
                 StringWriter sw = new StringWriter();
-                int count = 0;
+                Response resp = null;
+                try{
+                    int count = 0;
 
-                // only convert when having some results
-                if (entrySet != null && !entrySet.getEntries().isEmpty()){
-                    PsimiRdfConverter rdfConverter = new PsimiRdfConverter();
-                    try {
-                        rdfConverter.convert(entrySet, rdfFormat , sw);
-                    } catch (Exception e) {
-                        return formatNotSupportedResponse(format);
-                    }
+                    // only convert when having some results
+                    if (entrySet != null && !entrySet.getEntries().isEmpty()){
+                        PsimiRdfConverter rdfConverter = new PsimiRdfConverter();
+                        try {
+                            rdfConverter.convert(entrySet, rdfFormat , sw);
+                        } catch (Exception e) {
+                            return formatNotSupportedResponse(format);
+                        }
 
-                    if (!entrySet.getEntries().isEmpty()){
-                        count = entrySet.getEntries().iterator().next().getInteractions().size();
+                        if (!entrySet.getEntries().isEmpty()){
+                            count = entrySet.getEntries().iterator().next().getInteractions().size();
+                        }
                     }
+                    resp = prepareResponse(Response.status(200).type(mediaType), sw.toString(), count, isCompressed).build();
                 }
-
-                Response resp = prepareResponse(Response.status(200).type(mediaType), sw.toString(), count, isCompressed).build();
-
-                // close writer
-                sw.close();
+                finally {
+                    // close writer
+                    sw.close();
+                }
 
                 return resp;
 
             } else {
-                int count = count(query);
+                int count = 0;
                 
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
                     return count(query);
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults));
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults), SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
 
                     count = result.countResults();
 
-                    ByteArrayOutputStream mitabOs = new ByteArrayOutputStream();
-                    result.write(mitabOs);
-                    
                     boolean tooManyResults = false;
-                    
+
                     if (count > MAX_XGMML_INTERACTIONS) {
                         tooManyResults = true;
                     }
-                    
-                    DocumentDefinition mitabDefinition = MitabDocumentDefinitionFactory.mitab25();
-                    DocumentDefinition xgmmlDefinition = new XGMMLDocumentDefinition("PSICQUIC", "Query: "+query+((tooManyResults? " / MORE THAN "+MAX_XGMML_INTERACTIONS+" RESULTS WERE RETURNED. FILE LIMITED TO THE FIRST "+MAX_XGMML_INTERACTIONS : "")), "http://psicquic.googlecode.com");
 
-                    Reader mitabReader = new StringReader(mitabOs.toString());
-                    Writer xgmmlWriter = new StringWriter();
+                    ByteArrayOutputStream mitabOs = new ByteArrayOutputStream();
+                    Response resp = null;
+                    try{
+                        result.write(mitabOs);
+                        DocumentDefinition mitabDefinition = MitabDocumentDefinitionFactory.mitab25();
+                        DocumentDefinition xgmmlDefinition = new XGMMLDocumentDefinition("PSICQUIC", "Query: "+query+((tooManyResults? " / MORE THAN "+MAX_XGMML_INTERACTIONS+" RESULTS WERE RETURNED. FILE LIMITED TO THE FIRST "+MAX_XGMML_INTERACTIONS : "")), "http://psicquic.googlecode.com");
 
-                    DocumentConverter converter = new DocumentConverter(mitabDefinition, xgmmlDefinition);
-                    converter.convert(mitabReader, xgmmlWriter);
+                        Reader mitabReader = new StringReader(mitabOs.toString());
+                        Writer xgmmlWriter = new StringWriter();
 
-                    // close mitabOs now
-                    mitabOs.close();
-                    // close mitab reader now
-                    mitabReader.close();
+                        try{
+                            DocumentConverter converter = new DocumentConverter(mitabDefinition, xgmmlDefinition);
+                            converter.convert(mitabReader, xgmmlWriter);
 
-                    Response resp = prepareResponse(Response.status(200).type("application/xgmml"),
-                            xgmmlWriter.toString(), count, isCompressed)
-                            .build();
 
-                    // close stringWriter now
-                    xgmmlWriter.close();
+                            resp = prepareResponse(Response.status(200).type("application/xgmml"),
+                                    xgmmlWriter.toString(), count, isCompressed)
+                                    .build();
+
+                            // close stringWriter now
+                            xgmmlWriter.close();
+                        }
+                        finally {
+                            // close mitab reader now
+                            mitabReader.close();
+                            // close stringWriter now
+                            xgmmlWriter.close();
+                        }
+                    }
+                    finally {
+                        // close mitabOs now
+                        mitabOs.close();
+                    }
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
                            result.countResults(), isCompressed).build();
-                } else {
+                }
+                else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB26);
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
+                            result.countResults(), isCompressed).build();
+                }
+                else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, isCompressed, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB27);
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
+                            result.countResults(), isCompressed).build();
+                }else {
                     return formatNotSupportedResponse(format);
                 }
             }
@@ -225,20 +261,24 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
     }
 
-    private Response formatNotSupportedResponse(String format) {
+    protected Response formatNotSupportedResponse(String format) {
         return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported: "+format).build();
     }
 
-    private Response.ResponseBuilder prepareResponse(Response.ResponseBuilder responseBuilder, Object entity, long totalCount, boolean compressed) throws IOException {
+    protected Response.ResponseBuilder prepareResponse(Response.ResponseBuilder responseBuilder, Object entity, long totalCount, boolean compressed) throws IOException {
         if (compressed) {
             if (entity instanceof InputStream) {
                 CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput((InputStream)entity);
                 responseBuilder.entity(streamingOutput);
             } else if (entity instanceof String) {
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(((String)entity).getBytes());
-                CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
-                responseBuilder.entity(streamingOutput);
-                inputStream.close();
+                try{
+                    CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
+                    responseBuilder.entity(streamingOutput);
+                }
+                finally {
+                    inputStream.close();
+                }
             } else if (entity instanceof EntrySet) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -248,14 +288,18 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     ByteArrayInputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
 
-                    CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
-                    responseBuilder.entity(streamingOutput);
-
-                    baos.close();
-                    inputStream.close();
-
+                    try{
+                        CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
+                        responseBuilder.entity(streamingOutput);
+                    }
+                    finally {
+                        inputStream.close();
+                    }
                 } catch (Throwable e) {
                     throw new IOException("Problem marshalling XML", e);
+                }
+                finally {
+                    baos.close();
                 }
 
             } else {
@@ -283,7 +327,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         return responseBuilder;
     }
 
-    private String getRdfFormatName(String format) {
+    protected String getRdfFormatName(String format) {
         if (format.equalsIgnoreCase("biopax") || format.equalsIgnoreCase("biopax-L3")) {
             return RdfFormat.BIOPAX_L3.getName();
         } else if (format.equalsIgnoreCase("biopax-L2")) {
@@ -305,7 +349,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         return rdfFormat;
     }
 
-    private psidev.psi.mi.xml.model.EntrySet createEntrySet(String query, int firstResult, int maxResults) throws ConverterException, PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    protected psidev.psi.mi.xml.model.EntrySet createEntrySet(String query, int firstResult, int maxResults) throws ConverterException, PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         EntrySetConverter converter = new EntrySetConverter();
         converter.setDAOFactory(new InMemoryDAOFactory());
         psidev.psi.mi.xml.model.EntrySet entrySet = converter.fromJaxb(getByQueryXml(query, firstResult, maxResults));
@@ -371,7 +415,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         return response.getResultSet().getEntrySet();
     }
 
-    private int count(String query) throws NotSupportedTypeException, NotSupportedMethodException, PsicquicServiceException {
+    protected int count(String query) throws NotSupportedTypeException, NotSupportedMethodException, PsicquicServiceException {
         RequestInfo reqInfo = new RequestInfo();
         reqInfo.setResultType("count");
         QueryResponse response = psicquicService.getByQuery(query, reqInfo);

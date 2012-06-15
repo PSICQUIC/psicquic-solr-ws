@@ -23,6 +23,7 @@ import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
 import javax.ws.rs.core.MediaType;
@@ -47,12 +48,12 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
     private PsicquicService psicquicService;
 
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        String query = "id:"+createQueryValue(interactorAc, db)+ " OR alias:"+createQueryValue(interactorAc, db);
+        String query = SolrFieldName.id+":"+createQueryValue(interactorAc, db)+ " OR "+SolrFieldName.alias+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults);
     }
 
     public Object getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        String query = "interaction_id:"+createQueryValue(interactionAc, db);
+        String query = SolrFieldName.interaction_id+":"+createQueryValue(interactionAc, db);
         return getByQuery(query, format, firstResult, maxResults);
     }
 
@@ -85,10 +86,10 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else if (SolrBasedPsicquicRestService.RETURN_TYPE_COUNT.equals(format)) {
             return count(query);
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN).equals(format)) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, true);
+            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, true, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
             return Response.status(200).type("application/x-gzip").entity(result).build();
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults);
+            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
             return Response.status(200).type(MediaType.TEXT_PLAIN).entity(result).build();
         } else {
             return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported").build();

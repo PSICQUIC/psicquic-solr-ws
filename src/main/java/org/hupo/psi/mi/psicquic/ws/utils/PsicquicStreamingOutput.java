@@ -39,17 +39,19 @@ public class PsicquicStreamingOutput implements StreamingOutput {
     private int firstResult;
     private int maxResults;
     private boolean gzip;
+    private String formatType;
 
-    public PsicquicStreamingOutput(PsicquicService psicquicService, String query, int firstResult, int maxResults) {
-        this(psicquicService, query, firstResult, maxResults, false);
+    public PsicquicStreamingOutput(PsicquicService psicquicService, String query, int firstResult, int maxResults, String formatType) {
+        this(psicquicService, query, firstResult, maxResults, false, formatType);
     }
 
-    public PsicquicStreamingOutput(PsicquicService psicquicService, String query, int firstResult, int maxResults, boolean gzip) {
+    public PsicquicStreamingOutput(PsicquicService psicquicService, String query, int firstResult, int maxResults, boolean gzip, String formatType) {
         this.psicquicService = psicquicService;
         this.query = query;
         this.firstResult = firstResult;
         this.maxResults = maxResults;
         this.gzip = gzip;
+        this.formatType = formatType != null ? formatType : SolrBasedPsicquicService.RETURN_TYPE_MITAB25;
 
 
     }
@@ -59,7 +61,7 @@ public class PsicquicStreamingOutput implements StreamingOutput {
 
         // count
         RequestInfo reqInfo = new RequestInfo();
-        reqInfo.setResultType("psi-mi/tab25");
+        reqInfo.setResultType(formatType);
         reqInfo.setFirstResult(0);
         reqInfo.setBlockSize(0);
 
@@ -91,31 +93,37 @@ public class PsicquicStreamingOutput implements StreamingOutput {
         int max = firstResult + maxResults;
         int blockSize = Math.min(SolrBasedPsicquicService.BLOCKSIZE_MAX, maxResults);
 
-        do {
-            reqInfo.setFirstResult(firstResult);
+        try{
+            do {
+                reqInfo.setFirstResult(firstResult);
 
-            if (totalResults > 0 && max < firstResult+blockSize) {
-                blockSize = max - firstResult;
+                if (totalResults > 0 && max < firstResult+blockSize) {
+                    blockSize = max - firstResult;
+                }
+
+                reqInfo.setBlockSize(blockSize);
+
+                try {
+                    response = psicquicService.getByQuery(query, reqInfo);
+                    out.write(response.getResultSet().getMitab());
+                } catch (Exception e) {
+                    throw new WebApplicationException(e);
+                }
+
+                out.flush();
+
+                totalResults = response.getResultInfo().getTotalResults();
+
+                firstResult = firstResult + response.getResultInfo().getBlockSize();
+
+            } while (firstResult < totalResults && firstResult < max);
+        }
+        finally {
+            out.close();
+            if (isGzip()){
+                os.close();
             }
-
-            reqInfo.setBlockSize(blockSize);
-
-            try {
-                response = psicquicService.getByQuery(query, reqInfo);
-                out.write(response.getResultSet().getMitab());
-            } catch (Exception e) {
-                throw new WebApplicationException(e);
-            }
-
-            out.flush();
-
-            totalResults = response.getResultInfo().getTotalResults();
-
-            firstResult = firstResult + response.getResultInfo().getBlockSize();
-
-        } while (firstResult < totalResults && firstResult < max);
-
-        out.close();
+        }        
     }
 
     public QueryResponse getQueryResponse() {

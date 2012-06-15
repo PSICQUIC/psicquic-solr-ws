@@ -30,7 +30,8 @@
 
     <bean name="restService10" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService10"/>
     <bean name="restService11" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService11"/>
-    <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService"/>
+    <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService12"/>
+    <bean name="restService13" class="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService"/>
 
     <!-- Service endpoint -->
     <!-- See http://incubator.apache.org/cxf/faq.html regarding CXF + Spring AOP -->
@@ -58,9 +59,15 @@
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="psicquicRestService13" address="/v1.3">
+        <jaxrs:serviceBeans>
+            <ref bean="restService13"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxrs:server id="psicquicRestServiceCurrent" address="/current">
         <jaxrs:serviceBeans>
-            <ref bean="restService12"/>
+            <ref bean="restService13"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
