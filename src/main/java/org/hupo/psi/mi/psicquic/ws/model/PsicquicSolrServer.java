@@ -21,10 +21,7 @@ import psidev.psi.mi.xml254.jaxb.AttributeList;
 import psidev.psi.mi.xml254.jaxb.Entry;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Psicquic solr server that is wrapping a solrServer
@@ -124,15 +121,18 @@ public class PsicquicSolrServer {
         solrFields.put(RETURN_TYPE_COUNT, new String[] {});
     }
 
-    public QueryResponse search(String query, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
-        if (query == null) throw new NullPointerException("Null query");
+    public QueryResponse search(String filterQuery, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
+        if (filterQuery == null) throw new NullPointerException("Null query");
+
+        String q = "*:*";
 
         // format wildcard query
-        if ("*".equals(query)){
-            query = "*:*";
+        if ("*".equals(filterQuery)){
+            filterQuery = "*:*";
         }
 
-        SolrQuery solrQuery = new SolrQuery(query);
+        SolrQuery solrQuery = new SolrQuery(q);
+        solrQuery.addFilterQuery(filterQuery);
 
         // set first result
         if (firstResult != null)
@@ -171,26 +171,35 @@ public class PsicquicSolrServer {
         }
 
         originalQuery.setFields(fields);
+        
+        String [] filterQueries = originalQuery.getFilterQueries().clone();
+        int index = 0;
+        for (String fq : originalQuery.getFilterQueries()){
+            // if using a wildcard query we convert to lower case
+            // as of http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200903.mbox/%3CFD3AFB65-AEC1-40B2-A0A4-7E14A519AB05@ehatchersolutions.com%3E
+            if (fq.contains("*")) {
+                String[] tokens = fq.split(" ");
 
-        // if using a wildcard query we convert to lower case
-        // as of http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200903.mbox/%3CFD3AFB65-AEC1-40B2-A0A4-7E14A519AB05@ehatchersolutions.com%3E
-        if (originalQuery.getQuery().contains("*")) {
-            String[] tokens = originalQuery.getQuery().split(" ");
+                StringBuilder sb = new StringBuilder(fq.length());
 
-            StringBuilder sb = new StringBuilder(originalQuery.getQuery().length());
+                for (String token : tokens) {
+                    if (token.contains("*")) {
+                        sb.append(token.toLowerCase());
+                    } else {
+                        sb.append(token);
+                    }
 
-            for (String token : tokens) {
-                if (token.contains("*")) {
-                    sb.append(token.toLowerCase());
-                } else {
-                    sb.append(token);
+                    sb.append(" ");
                 }
 
-                sb.append(" ");
+                filterQueries[index] = sb.toString().trim();
             }
 
-            originalQuery.setQuery(sb.toString().trim());
+            filterQueries[index] = fq.replaceAll(" and ", " AND ").replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ");
+
+            index++;
         }
+        originalQuery.setFilterQueries(filterQueries);
 
         QueryResponse queryResponse = null;
 
