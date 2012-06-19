@@ -52,6 +52,8 @@ public class PsicquicSolrServer {
     private static final String FIELD_EMPTY = "-";
 
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
+    
+    private final static String DISMAX_PARAM_NAME = "qf";
 
     private PsimiTabReader mitabReader;
     
@@ -132,7 +134,12 @@ public class PsicquicSolrServer {
         }
 
         SolrQuery solrQuery = new SolrQuery(q);
+        
+        // use filter query because optimized and use a cache
         solrQuery.addFilterQuery(filterQuery);
+        
+        // use dismax parser for querying default fields
+        solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
 
         // set first result
         if (firstResult != null)
