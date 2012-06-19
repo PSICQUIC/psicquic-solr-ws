@@ -191,7 +191,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
                     return count(query);
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults), SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25);
+                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, Math.min(MAX_XGMML_INTERACTIONS, maxResults), SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
 
                     count = result.countResults();
 

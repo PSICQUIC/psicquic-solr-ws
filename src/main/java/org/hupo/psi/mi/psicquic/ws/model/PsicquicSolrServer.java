@@ -73,7 +73,6 @@ public class PsicquicSolrServer {
         solrFields = new HashMap<String, String[]>(5);
 
         String[] DATA_FIELDS_25 = new String[] {
-                SolrFieldName.idA+STORED_FIELD_EXTENSION,
                 SolrFieldName.idA+STORED_FIELD_EXTENSION, SolrFieldName.idB+STORED_FIELD_EXTENSION, SolrFieldName.altidA+STORED_FIELD_EXTENSION,
                 SolrFieldName.altidB+STORED_FIELD_EXTENSION, SolrFieldName.aliasA+STORED_FIELD_EXTENSION, SolrFieldName.aliasB+STORED_FIELD_EXTENSION,
                 SolrFieldName.detmethod+STORED_FIELD_EXTENSION, SolrFieldName.pubauth+STORED_FIELD_EXTENSION, SolrFieldName.pubid+STORED_FIELD_EXTENSION,
