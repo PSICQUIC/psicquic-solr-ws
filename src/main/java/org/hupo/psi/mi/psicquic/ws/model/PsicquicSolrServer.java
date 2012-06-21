@@ -35,28 +35,33 @@ public class PsicquicSolrServer {
 
     private final Logger logger = LoggerFactory.getLogger(SolrBasedPsicquicService.class);
 
-    private SolrServer solrServer;
-
+    // static final variables
     private final static String STORED_FIELD_EXTENSION="_o";
-    
-    private Map<String, String []> solrFields;
     private static final String RETURN_TYPE_XML25 = "psi-mi/xml25";
     private static final String RETURN_TYPE_MITAB25 = "psi-mi/tab25";
     private static final String RETURN_TYPE_MITAB26 = "psi-mi/tab26";
     private static final String RETURN_TYPE_MITAB27 = "psi-mi/tab27";
     private static final String RETURN_TYPE_COUNT = "count";
-
     private static final String NEW_LINE = System.getProperty("line.separator");
     private static final String COLUMN_SEPARATOR = "\t";
     private static final String FIELD_SEPARATOR = "|";
     private static final String FIELD_EMPTY = "-";
-
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
-    
     private final static String DISMAX_PARAM_NAME = "qf";
     private final static String DISMAX_TYPE = "edismax";
 
+    /**
+     * solr server
+     */
+    private SolrServer solrServer;
+    /**
+     * MITAB reader
+     */
     private PsimiTabReader mitabReader;
+    /**
+     * Map of SOLR fields that can be returned for a specific format
+     */
+    private Map<String, String []> solrFields;
     
     public PsicquicSolrServer(SolrServer solrServer){
         this.solrServer = solrServer;
@@ -64,12 +69,17 @@ public class PsicquicSolrServer {
         if (this.solrServer == null){
             throw new IllegalArgumentException("Cannot create a new PsicquicSolrServer if the SolrServer is null");
         }
-        
+
+        // initialise default solr field map
         initializeSolrFieldsMap();
 
+        // create new mitab reader without header
         mitabReader = new PsimiTabReader(false);
     }
 
+    /**
+     * Associates for each format the fields that are expected to be returned
+     */
     private void initializeSolrFieldsMap(){
         solrFields = new HashMap<String, String[]>(5);
 
@@ -123,6 +133,16 @@ public class PsicquicSolrServer {
         solrFields.put(RETURN_TYPE_COUNT, new String[] {});
     }
 
+    /**
+     *
+     * @param q : query entered by user
+     * @param firstResult : first result
+     * @param maxResults : max number of results
+     * @param returnType : format of the results
+     * @param queryFilter : any filter to add to the query
+     * @return  the response
+     * @throws PsicquicServiceException
+     */
     public QueryResponse search(String q, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
         if (q == null) throw new NullPointerException("Null query");
 
