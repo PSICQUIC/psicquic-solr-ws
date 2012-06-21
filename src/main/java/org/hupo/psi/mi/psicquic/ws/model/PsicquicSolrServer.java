@@ -54,6 +54,7 @@ public class PsicquicSolrServer {
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
     
     private final static String DISMAX_PARAM_NAME = "qf";
+    private final static String DISMAX_TYPE = "dismax";
 
     private PsimiTabReader mitabReader;
     
@@ -122,23 +123,19 @@ public class PsicquicSolrServer {
         solrFields.put(RETURN_TYPE_COUNT, new String[] {});
     }
 
-    public QueryResponse search(String filterQuery, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
-        if (filterQuery == null) throw new NullPointerException("Null query");
-
-        String q = "*:*";
+    public QueryResponse search(String q, Integer firstResult, Integer maxResults, String returnType, String queryFilter) throws PsicquicServiceException {
+        if (q == null) throw new NullPointerException("Null query");
 
         // format wildcard query
-        if ("*".equals(filterQuery)){
-            filterQuery = "*:*";
+        if ("*".equals(q)){
+            q = "*:*";
         }
 
         SolrQuery solrQuery = new SolrQuery(q);
         
-        // use filter query because optimized and use a cache
-        solrQuery.addFilterQuery(filterQuery);
-        
         // use dismax parser for querying default fields
         solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
+        solrQuery.setQueryType(DISMAX_TYPE);
 
         // set first result
         if (firstResult != null)
@@ -162,8 +159,18 @@ public class PsicquicSolrServer {
 
         // apply any filter
         if (queryFilter != null && !queryFilter.isEmpty()) {
-            solrQuery.addFilterQuery(queryFilter.trim());
+            if ("*".equals(queryFilter) || q.trim().isEmpty()) {
+                q = queryFilter;
+            } else {
+                q+=" "+queryFilter;
+                q = q.trim();
+            }
         }
+
+        // use normal query so we can use dismax parser to define multiple default field names in case of free text searches. The filter query fq parameter does not work with
+        // dismax parser
+        solrQuery.setQuery(q);
+
         return search(solrQuery, returnType);
     }
 
@@ -178,34 +185,29 @@ public class PsicquicSolrServer {
 
         originalQuery.setFields(fields);
         
-        String [] filterQueries = originalQuery.getFilterQueries().clone();
-        int index = 0;
-        for (String fq : originalQuery.getFilterQueries()){
-            // if using a wildcard query we convert to lower case
-            // as of http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200903.mbox/%3CFD3AFB65-AEC1-40B2-A0A4-7E14A519AB05@ehatchersolutions.com%3E
-            if (fq.contains("*")) {
-                String[] tokens = fq.split(" ");
+        String query = originalQuery.getQuery();
+        // if using a wildcard query we convert to lower case
+        // as of http://mail-archives.apache.org/mod_mbox/lucene-solr-user/200903.mbox/%3CFD3AFB65-AEC1-40B2-A0A4-7E14A519AB05@ehatchersolutions.com%3E
+        if (query.contains("*")) {
+            String[] tokens = query.split(" ");
 
-                StringBuilder sb = new StringBuilder(fq.length());
+            StringBuilder sb = new StringBuilder(query.length());
 
-                for (String token : tokens) {
-                    if (token.contains("*")) {
-                        sb.append(token.toLowerCase());
-                    } else {
-                        sb.append(token);
-                    }
-
-                    sb.append(" ");
+            for (String token : tokens) {
+                if (token.contains("*")) {
+                    sb.append(token.toLowerCase());
+                } else {
+                    sb.append(token);
                 }
 
-                filterQueries[index] = sb.toString().trim();
+                sb.append(" ");
             }
 
-            filterQueries[index] = fq.replaceAll(" and ", " AND ").replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ");
-
-            index++;
+            query = sb.toString().trim();
         }
-        originalQuery.setFilterQueries(filterQueries);
+
+        query = query.replaceAll(" and ", " AND ").replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ");
+        originalQuery.setQuery(query);
 
         QueryResponse queryResponse = null;
 
