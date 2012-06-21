@@ -54,7 +54,7 @@ public class PsicquicSolrServer {
     private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
     
     private final static String DISMAX_PARAM_NAME = "qf";
-    private final static String DISMAX_TYPE = "dismax";
+    private final static String DISMAX_TYPE = "edismax";
 
     private PsimiTabReader mitabReader;
     
@@ -162,7 +162,7 @@ public class PsicquicSolrServer {
             if ("*".equals(queryFilter) || q.trim().isEmpty()) {
                 q = queryFilter;
             } else {
-                q+=" "+queryFilter;
+                q+=" AND "+queryFilter;
                 q = q.trim();
             }
         }
@@ -206,7 +206,8 @@ public class PsicquicSolrServer {
             query = sb.toString().trim();
         }
 
-        query = query.replaceAll(" and ", " AND ").replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ");
+        // and, or and not should be upper case
+        query = query.replaceAll(" and ", " AND ").replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ").replaceAll("\\\"", "\"").replaceAll("\\\\","\\");
         originalQuery.setQuery(query);
 
         QueryResponse queryResponse = null;

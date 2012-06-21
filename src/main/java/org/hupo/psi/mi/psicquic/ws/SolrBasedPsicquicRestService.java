@@ -104,6 +104,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                                                  String compressed) throws PsicquicServiceException,
                                                                  NotSupportedMethodException,
                                                                  NotSupportedTypeException {
+        if (query == null) throw new NullPointerException("Null query");
 
         boolean isCompressed = ("y".equalsIgnoreCase(compressed) || "true".equalsIgnoreCase(compressed));
 
