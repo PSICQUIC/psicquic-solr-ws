@@ -7,7 +7,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.hupo.psi.mi.psicquic.*;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class PsicquicSolrServer {
     private final static String DISMAX_PARAM_NAME = "qf";
     private final static String DEFAULT_PARAM_NAME = "df";
     private final static String DISMAX_TYPE = "edismax";
-    private final static String QUER_TYPE = "defType";
+    private final static String QUERY_TYPE = "defType";
 
     /**
      * solr server
@@ -157,8 +156,8 @@ public class PsicquicSolrServer {
         
         // use dismax parser for querying default fields
         //solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
-        solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
-        solrQuery.setParam(QUER_TYPE, DISMAX_TYPE);
+        solrQuery.setParam(DEFAULT_PARAM_NAME, SolrFieldName.identifier.toString()+" "+SolrFieldName.pubid.toString()+" "+SolrFieldName.pubauth.toString()+" "+SolrFieldName.species.toString()+" "+SolrFieldName.detmethod.toString()+" "+SolrFieldName.type.toString()+" "+SolrFieldName.interaction_id.toString());
+        solrQuery.setParam(QUERY_TYPE, DISMAX_TYPE);
 
         // set first result
         if (firstResult != null)
