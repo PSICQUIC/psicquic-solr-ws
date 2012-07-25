@@ -50,6 +50,7 @@ public class PsicquicSolrServer {
     private final static String DISMAX_PARAM_NAME = "qf";
     private final static String DEFAULT_PARAM_NAME = "df";
     private final static String DISMAX_TYPE = "edismax";
+    private final static String QUER_TYPE = "defType";
 
     /**
      * solr server
@@ -156,8 +157,8 @@ public class PsicquicSolrServer {
         
         // use dismax parser for querying default fields
         //solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
-        solrQuery.setParam(DEFAULT_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
-        solrQuery.setQueryType(DISMAX_TYPE);
+        solrQuery.setParam(DISMAX_PARAM_NAME, SolrFieldName.identifier.toString(), SolrFieldName.pubid.toString(), SolrFieldName.pubauth.toString(), SolrFieldName.species.toString(), SolrFieldName.detmethod.toString(), SolrFieldName.type.toString(), SolrFieldName.interaction_id.toString());
+        solrQuery.setParam(QUER_TYPE, DISMAX_TYPE);
 
         // set first result
         if (firstResult != null)
