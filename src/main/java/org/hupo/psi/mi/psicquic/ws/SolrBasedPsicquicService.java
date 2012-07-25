@@ -158,7 +158,6 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
         PsicquicSolrServer solrServer = getPsicquicSolrServer();
 
-
         // preparing the response
         QueryResponse queryResponse = solrServer.search(query, requestInfo.getFirstResult(), blockSize, requestInfo.getResultType(), config.getQueryFilter());
 
