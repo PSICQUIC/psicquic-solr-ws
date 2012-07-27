@@ -16,18 +16,27 @@
 package org.hupo.psi.mi.psicquic.ws.legacy;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
+import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
+import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
+import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
+import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
+import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
+import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +50,27 @@ import java.util.List;
 @Controller
 public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
-     @Autowired
+    @Autowired
     private PsicquicConfig config;
 
-    @Autowired
-    private PsicquicService psicquicService;
+    protected PsicquicSolrServer psicquicSolrServer;
+
+    public PsicquicSolrServer getPsicquicSolrServer() {
+        if (psicquicSolrServer == null) {
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl());
+
+            solrServer.setMaxTotalConnections(SolrBasedPsicquicService.maxTotalConnections);
+            solrServer.setDefaultMaxConnectionsPerHost(SolrBasedPsicquicService.defaultMaxConnectionsPerHost);
+            solrServer.setConnectionTimeout(SolrBasedPsicquicService.connectionTimeOut);
+            solrServer.setSoTimeout(SolrBasedPsicquicService.soTimeOut);
+            solrServer.setAllowCompression(SolrBasedPsicquicService.allowCompression);
+
+            psicquicSolrServer = new PsicquicSolrServer(solrServer);
+        }
+
+        return psicquicSolrServer;
+
+    }
 
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.id+":"+createQueryValue(interactorAc, db)+ " OR "+SolrFieldName.alias+":"+createQueryValue(interactorAc, db);
@@ -58,12 +83,14 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
     }
 
     public Object getByQuery(String query, String format,
-                                                 String firstResultStr,
-                                                 String maxResultsStr) throws PsicquicServiceException,
-                                                                 NotSupportedMethodException,
-                                                                 NotSupportedTypeException {
+                             String firstResultStr,
+                             String maxResultsStr) throws PsicquicServiceException,
+            NotSupportedMethodException,
+            NotSupportedTypeException {
         int firstResult;
         int maxResults;
+
+        PsicquicSolrServer psicquicSolrServer = getPsicquicSolrServer();
 
         try {
             firstResult =Integer.parseInt(firstResultStr);
@@ -82,15 +109,59 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         }
 
         if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_XML25).equals(format)) {
-            return getByQueryXml(query, firstResult, maxResults);
+            PsicquicSearchResults psicquicResults = null;
+            EntrySet entrySet = null;
+            try {
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_XML25, config.getQueryFilter());
+                entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
+            } catch (PsicquicSolrException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (SolrServerException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (XmlConversionException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (IllegalAccessException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (ConverterException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (IOException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            }
+
+            return entrySet;
         } else if (SolrBasedPsicquicRestService.RETURN_TYPE_COUNT.equals(format)) {
-            return count(query);
+            PsicquicSearchResults psicquicResults = null;
+            try {
+                psicquicResults = psicquicSolrServer.search(query, 0, 0, SolrBasedPsicquicService.RETURN_TYPE_COUNT, config.getQueryFilter());
+            } catch (PsicquicSolrException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (SolrServerException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            }
+
+            return psicquicResults.getNumberResults();
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN).equals(format)) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, true, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
+            PsicquicSearchResults psicquicResults = null;
+            try {
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+            } catch (PsicquicSolrException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (SolrServerException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            }
+
+            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicResults, true);
             return Response.status(200).type("application/x-gzip").entity(result).build();
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicService, query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25);
-            return Response.status(200).type(MediaType.TEXT_PLAIN).entity(result).build();
+            PsicquicSearchResults psicquicResults = null;
+            try {
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+            } catch (PsicquicSolrException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            } catch (SolrServerException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            }
+            return Response.status(200).type(MediaType.TEXT_PLAIN).entity(psicquicResults).build();
         } else {
             return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported").build();
         }
@@ -113,36 +184,6 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
     public String getVersion() {
         return config.getVersion();
-    }
-
-    public EntrySet getByQueryXml(String query,
-                                  int firstResult,
-                                  int maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
-        RequestInfo reqInfo = new RequestInfo();
-        reqInfo.setResultType("psi-mi/xml25");
-
-        try {
-            reqInfo.setFirstResult(firstResult);
-        } catch (NumberFormatException e) {
-            throw new PsicquicServiceException("firstResult parameter is not a number: "+firstResult);
-        }
-
-        try {
-            reqInfo.setBlockSize(maxResults);
-        } catch (NumberFormatException e) {
-            throw new PsicquicServiceException("maxResults parameter is not a number: "+maxResults);
-        }
-
-        QueryResponse response = psicquicService.getByQuery(query, reqInfo);
-
-        return response.getResultSet().getEntrySet();
-    }
-
-    private int count(String query) throws NotSupportedTypeException, NotSupportedMethodException, PsicquicServiceException {
-        RequestInfo reqInfo = new RequestInfo();
-        reqInfo.setResultType("count");
-        QueryResponse response = psicquicService.getByQuery(query, reqInfo);
-        return response.getResultInfo().getTotalResults();
     }
 
     private String createQueryValue(String interactorAc, String db) {
