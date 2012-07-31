@@ -25,7 +25,6 @@ import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
-import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
@@ -156,8 +155,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             format = RETURN_TYPE_MITAB26;
             isCompressed = true;
         }
-        else if (RETURN_TYPE_MITAB26_BIN.equalsIgnoreCase(format)) {
-            format = RETURN_TYPE_MITAB26;
+        else if (RETURN_TYPE_MITAB27_BIN.equalsIgnoreCase(format)) {
+            format = RETURN_TYPE_MITAB27;
             isCompressed = true;
         }
 
@@ -173,7 +172,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
                 PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, format, config.getQueryFilter());
 
-                String rdf = psicquicResults.createRDFOrBiopax(format);
+                InputStream rdf = psicquicResults.createRDFOrBiopax(format);
                 String mediaType = (format.contains("xml") || format.toLowerCase().startsWith("biopax"))? MediaType.APPLICATION_XML : MediaType.TEXT_PLAIN;
 
                 return prepareResponse(Response.status(200).type(mediaType), rdf, psicquicResults.getNumberResults(), isCompressed).build();
@@ -190,7 +189,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     count = psicquicResults.getNumberResults();
 
-                    String xgmml = psicquicResults.createXGMML();
+                    InputStream xgmml = psicquicResults.createXGMML();
                     Response resp = prepareResponse(Response.status(200).type("application/xgmml"),
                             xgmml, count, isCompressed)
                             .build();
@@ -199,23 +198,20 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicResults, isCompressed);
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
-                           result.countResults(), isCompressed).build();
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                           psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB26, config.getQueryFilter());
 
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicResults, isCompressed);
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
-                            result.countResults(), isCompressed).build();
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                            psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB27, config.getQueryFilter());
 
-                    PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicResults, isCompressed);
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), result,
-                            result.countResults(), isCompressed).build();
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                            psicquicResults.getNumberResults(), isCompressed).build();
                 }else {
                     return formatNotSupportedResponse(format);
                 }
@@ -238,13 +234,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 responseBuilder.entity(streamingOutput);
             } else if (entity instanceof String) {
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(((String)entity).getBytes());
-                try{
-                    CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
-                    responseBuilder.entity(streamingOutput);
-                }
-                finally {
-                    inputStream.close();
-                }
+                CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
+                responseBuilder.entity(streamingOutput);
             } else if (entity instanceof EntrySet) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -254,13 +245,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     ByteArrayInputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
 
-                    try{
-                        CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
-                        responseBuilder.entity(streamingOutput);
-                    }
-                    finally {
-                        inputStream.close();
-                    }
+                    CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(inputStream);
+                    responseBuilder.entity(streamingOutput);
                 } catch (Throwable e) {
                     throw new IOException("Problem marshalling XML", e);
                 }

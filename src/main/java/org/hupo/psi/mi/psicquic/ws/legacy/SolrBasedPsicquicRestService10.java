@@ -18,15 +18,17 @@ package org.hupo.psi.mi.psicquic.ws.legacy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.hupo.psi.mi.psicquic.*;
+import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
+import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
+import org.hupo.psi.mi.psicquic.PsicquicServiceException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
+import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
-import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
@@ -37,6 +39,7 @@ import psidev.psi.mi.xml254.jaxb.EntrySet;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,8 +153,14 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             }
 
-            PsicquicStreamingOutput result = new PsicquicStreamingOutput(psicquicResults, true);
-            return Response.status(200).type("application/x-gzip").entity(result).build();
+            InputStream mitab = psicquicResults.getMitab();
+            if (mitab != null){
+                CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(mitab);
+                return Response.status(200).type("application/x-gzip").entity(streamingOutput).build();
+            }
+            else {
+                return Response.status(200).type("application/x-gzip").entity("").build();
+            }
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
             PsicquicSearchResults psicquicResults = null;
             try {
@@ -161,7 +170,14 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             } catch (SolrServerException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             }
-            return Response.status(200).type(MediaType.TEXT_PLAIN).entity(psicquicResults).build();
+
+            InputStream mitab = psicquicResults.getMitab();
+            if (mitab != null){
+                return Response.status(200).type(MediaType.TEXT_PLAIN).entity(mitab).build();
+            }
+            else {
+                return Response.status(200).type(MediaType.TEXT_PLAIN).entity("").build();
+            }
         } else {
             return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported").build();
         }

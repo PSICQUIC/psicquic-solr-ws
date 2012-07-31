@@ -16,6 +16,7 @@
 package org.hupo.psi.mi.psicquic.ws;
 
 import com.google.common.primitives.Ints;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.feature.Features;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -35,6 +36,7 @@ import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -222,9 +224,13 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
         if (RETURN_TYPE_MITAB25.equals(resultType) || RETURN_TYPE_MITAB26.equals(resultType) || RETURN_TYPE_MITAB27.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI TAB");
-            String mitab = psicquicSearchResults.getMitab();
+            InputStream mitabStream = psicquicSearchResults.getMitab();
 
-            resultSet.setMitab(mitab);
+            if (mitabStream != null){
+                String mitab = IOUtils.toString(psicquicSearchResults.getMitab());
+
+                resultSet.setMitab(mitab);
+            }
         } else if (RETURN_TYPE_XML25.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
 

@@ -15,11 +15,13 @@
  */
 package org.hupo.psi.mi.psicquic.ws.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.zip.GZIPOutputStream;
@@ -65,9 +67,13 @@ public class PsicquicStreamingOutput implements StreamingOutput {
         PrintWriter out = new PrintWriter(os);
 
         try{
-            out.write(psicquicSearchResults.getMitab());
+            InputStream mitab = psicquicSearchResults.getMitab();
 
-            out.flush();
+            if (mitab != null){
+                out.write(IOUtils.toString(mitab));
+
+                out.flush();
+            }
         }
         finally {
             out.close();
