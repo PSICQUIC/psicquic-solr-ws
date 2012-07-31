@@ -25,7 +25,6 @@ public class PsicquicConverterUtils {
     public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize, int maxSize) throws ConverterException, IOException, XmlConversionException, IllegalAccessException {
         // get the entryset from the results and converts to jaxb
         psidev.psi.mi.xml.model.EntrySet psiEntrySet = psicquicSearchResults.createEntrySet();
-
         EntrySetConverter entryConverter = new EntrySetConverter();
         entryConverter.setDAOFactory(new InMemoryDAOFactory());
 
