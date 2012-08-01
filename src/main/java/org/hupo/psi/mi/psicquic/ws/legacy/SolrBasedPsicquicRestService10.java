@@ -115,7 +115,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             PsicquicSearchResults psicquicResults = null;
             EntrySet entrySet = null;
             try {
-                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_XML25, config.getQueryFilter());
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
                 entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
             } catch (PsicquicSolrException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
@@ -135,7 +135,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else if (SolrBasedPsicquicRestService.RETURN_TYPE_COUNT.equals(format)) {
             PsicquicSearchResults psicquicResults = null;
             try {
-                psicquicResults = psicquicSolrServer.search(query, 0, 0, SolrBasedPsicquicService.RETURN_TYPE_COUNT, config.getQueryFilter());
+                psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
             } catch (PsicquicSolrException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             } catch (SolrServerException e) {
@@ -146,7 +146,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN).equals(format)) {
             PsicquicSearchResults psicquicResults = null;
             try {
-                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
             } catch (PsicquicSolrException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             } catch (SolrServerException e) {
@@ -164,7 +164,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
             PsicquicSearchResults psicquicResults = null;
             try {
-                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
             } catch (PsicquicSolrException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             } catch (SolrServerException e) {

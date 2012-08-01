@@ -162,7 +162,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
         try {
             if (RETURN_TYPE_XML25.equalsIgnoreCase(format)) {
-                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_XML25, config.getQueryFilter());
+                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
 
                 final EntrySet entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
                 long count = psicquicResults.getNumberResults();
@@ -181,11 +181,11 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 long count = 0;
 
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, SolrBasedPsicquicService.RETURN_TYPE_COUNT, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     return psicquicResults.getNumberResults();
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                     count = psicquicResults.getNumberResults();
 
@@ -196,19 +196,19 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
                            psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB26, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, config.getQueryFilter());
 
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
                             psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB27, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, config.getQueryFilter());
 
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
                             psicquicResults.getNumberResults(), isCompressed).build();

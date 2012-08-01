@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+
+
+
+           http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
+
+    <!-- reader -->
+
+    <bean id="mitabFileNegativeTest" class="org.springframework.core.io.FileSystemResource">
+        <constructor-arg value="src/test/resources/samples/sampleFileNegative.txt"/>
+    </bean>
+
+    <bean id="mitabReaderNegativeTest" class="org.hupo.psi.mi.psicquic.indexing.batch.reader.MitabCalimochoReader">
+        <property name="resource" ref="mitabFileNegativeTest"/>
+    </bean>
+
+    <!-- writer -->
+
+    <bean id="solrWriterTest" class="org.hupo.psi.mi.psicquic.indexing.batch.writer.SolrItemWriter">
+        <property name="solrUrl" value="http://localhost:18080/solr"/>
+    </bean>
+
+    <bean id="solrCleanerTaskletTest" class="org.hupo.psi.mi.psicquic.indexing.batch.tasklet.SolrCleanerTasklet">
+        <property name="solrUrl" value="http://localhost:18080/solr"/>
+    </bean>
+
+    <!-- steps -->
+    <batch:step id="cleanSolrStepTest" parent="batchStep">
+        <batch:tasklet ref="solrCleanerTaskletTest">
+            <batch:listeners>
+                <batch:listener ref="simpleChunkListener" />
+            </batch:listeners>
+        </batch:tasklet>
+    </batch:step>
+    <batch:step id="solrIndexingNegativeStepTest" parent="batchStep">
+        <batch:tasklet>
+            <batch:listeners>
+                <batch:listener ref="simpleChunkListener" />
+            </batch:listeners>
+
+            <batch:chunk reader="mitabReaderNegativeTest"
+                         writer="solrWriterTest"
+                         retry-limit="10" commit-interval="2">
+                <batch:streams>
+                    <batch:stream ref="mitabReaderNegativeTest"/>
+                    <batch:stream ref="solrWriterTest"/>
+                </batch:streams>
+
+                <batch:retryable-exception-classes>
+                    <batch:include class="org.apache.solr.client.solrj.SolrServerException"/>
+                </batch:retryable-exception-classes>
+            </batch:chunk>
+        </batch:tasklet>
+    </batch:step>
+
+    <!-- final job which will export binary interactions, cluster and score them and index in solr -->
+    <batch:job id="mitabIndexNegativeJob" job-repository="jobRepository" parent="batchJob">
+
+        <batch:listeners>
+            <batch:listener>
+                <bean class="org.hupo.psi.mi.psicquic.indexing.batch.listener.PsicquicJobExecutionListener"/>
+            </batch:listener>
+        </batch:listeners>
+
+        <batch:step id="cleanSolrTest1"  parent="cleanSolrStepTest">
+            <batch:end on="FAILED"/>
+            <batch:next on="*" to="indexSolrStepTest1"/>
+        </batch:step>
+        <batch:step id="indexSolrStepTest1" parent="solrIndexingNegativeStepTest"/>
+    </batch:job>
+</beans>

@@ -7,6 +7,7 @@ import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
 import org.hupo.psi.mi.psicquic.PsicquicServiceException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
+import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
@@ -87,7 +88,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 PsicquicSearchResults psicquicResults = null;
                 EntrySet entrySet = null;
                 try {
-                    psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_XML25, config.getQueryFilter());
+                    psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
                     entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
                 } catch (PsicquicSolrException e) {
                     throw new PsicquicServiceException("Problem executing the query " + query, e);
@@ -117,11 +118,11 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 long count = 0;
 
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, SolrBasedPsicquicService.RETURN_TYPE_COUNT, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     return psicquicResults.getNumberResults();
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                     count = psicquicResults.getNumberResults();
 
@@ -132,7 +133,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, SolrBasedPsicquicService.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                     InputStream mitab = psicquicResults.getMitab();
                     if (mitab != null){

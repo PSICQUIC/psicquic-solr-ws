@@ -58,19 +58,10 @@ public class SolrBasedPsicquicService implements PsicquicService {
     public static int soTimeOut = 100000;
     public static boolean allowCompression = true;
 
-    public static final String RETURN_TYPE_XML25 = "psi-mi/xml25";
-    public static final String RETURN_TYPE_MITAB25 = "psi-mi/tab25";
-    public static final String RETURN_TYPE_MITAB26 = "psi-mi/tab26";
-    public static final String RETURN_TYPE_MITAB27 = "psi-mi/tab27";
-    public static final String RETURN_TYPE_COUNT = "count";
-
-    public static final String NEW_LINE = System.getProperty("line.separator");
-
     public static final int BLOCKSIZE_MAX = 200;
-    private static final String RETURN_TYPE_DEFAULT = RETURN_TYPE_MITAB25;
 
-    public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(RETURN_TYPE_XML25,
-            RETURN_TYPE_MITAB25, RETURN_TYPE_MITAB26, RETURN_TYPE_MITAB27, RETURN_TYPE_COUNT);
+    public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(PsicquicSolrServer.RETURN_TYPE_MITAB25,
+            PsicquicSolrServer.RETURN_TYPE_MITAB25, PsicquicSolrServer.RETURN_TYPE_MITAB26, PsicquicSolrServer.RETURN_TYPE_MITAB27, PsicquicSolrServer.RETURN_TYPE_COUNT);
 
 
     @Autowired
@@ -141,7 +132,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
                 sb.append(" ").append(operand).append(" ");
             }
         }
-        
+
         sb.append(")");
 
         return sb.toString();
@@ -150,8 +141,13 @@ public class SolrBasedPsicquicService implements PsicquicService {
     private String createQuery(DbRef dbRef) {
         String db = dbRef.getDbAc();
         String id = dbRef.getId();
-        
-        return "("+((db == null || db.length() == 0)? "\""+id+"\"" : "\""+db+"\" AND \""+id+"\"")+")";
+
+        if (id != null){
+            return "("+((db == null || db.length() == 0)? "\""+id+"\"" : "\""+db+":"+id+"\"")+")";
+        }
+        else {
+            return "("+db+")";
+        }
     }
 
     public QueryResponse getByQuery(String query, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
@@ -220,9 +216,9 @@ public class SolrBasedPsicquicService implements PsicquicService {
     protected ResultSet createResultSet(String query, PsicquicSearchResults psicquicSearchResults, RequestInfo requestInfo) throws NotSupportedTypeException, ConverterException, IOException, XmlConversionException, IllegalAccessException {
         ResultSet resultSet = new ResultSet();
 
-        String resultType = requestInfo.getResultType() != null ? requestInfo.getResultType() : RETURN_TYPE_DEFAULT;
+        String resultType = requestInfo.getResultType() != null ? requestInfo.getResultType() : PsicquicSolrServer.RETURN_TYPE_DEFAULT;
 
-        if (RETURN_TYPE_MITAB25.equals(resultType) || RETURN_TYPE_MITAB26.equals(resultType) || RETURN_TYPE_MITAB27.equals(resultType)) {
+        if (PsicquicSolrServer.RETURN_TYPE_MITAB25.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB26.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB27.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI TAB");
             InputStream mitabStream = psicquicSearchResults.getMitab();
 
@@ -231,13 +227,13 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
                 resultSet.setMitab(mitab);
             }
-        } else if (RETURN_TYPE_XML25.equals(resultType)) {
+        } else if (PsicquicSolrServer.RETURN_TYPE_XML25.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
 
             EntrySet jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize(), SolrBasedPsicquicService.BLOCKSIZE_MAX );
             resultSet.setEntrySet(jEntrySet);
 
-        } else if (RETURN_TYPE_COUNT.equals(resultType)) {
+        } else if (PsicquicSolrServer.RETURN_TYPE_COUNT.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Count query");
             // nothing to be done here
         } else {
