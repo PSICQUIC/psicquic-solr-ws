@@ -28,6 +28,8 @@ import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.junit.*;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.Arrays;
+
 /**
  * IntactPsicquicService Tester.
  *
@@ -128,64 +130,83 @@ public class SolrBasedPsicquicServiceTest {
         Assert.assertEquals(2, response5.getResultSet().getMitab().split("\n").length);
     }
 
-    /*@Test
+    @Test
     public void testGetByInteraction() throws Exception {
         RequestInfo info = new RequestInfo();
-        info.setResultType( IntactPsicquicService.RETURN_TYPE_MITAB25 );
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
         info.setBlockSize(50);
 
         DbRef dbRef = new DbRef();
-        dbRef.setId("DGI-337977");
+        dbRef.setId("EBI-5630468");
+        dbRef.setDbAc("intact");
 
         final QueryResponse response = service.getByInteraction(dbRef, info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+
+        // serch for db only
+        DbRef dbRef2 = new DbRef();
+        dbRef2.setDbAc("intact");
+
+        final QueryResponse response2 = service.getByInteraction(dbRef2, info);
+
+        Assert.assertEquals(4, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(4, response2.getResultSet().getMitab().split("\n").length);
+
+        // serch for id only
+        DbRef dbRef3 = new DbRef();
+        dbRef3.setId("EBI-5630468");
+
+        final QueryResponse response3 = service.getByInteraction(dbRef3, info);
+
+        Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
     }
 
     @Test
     public void testGetByInteractorList_operandOR() throws Exception {
         RequestInfo info = new RequestInfo();
-        info.setResultType( IntactPsicquicService.RETURN_TYPE_MITAB25 );
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
         info.setBlockSize(50);
 
         DbRef dbRef1 = new DbRef();
-        dbRef1.setId("MDR1");
+        dbRef1.setId("P07228");
         DbRef dbRef2 = new DbRef();
-        dbRef2.setId("FMS");
+        dbRef2.setId("P05556");
 
         final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "OR");
 
-        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(4, response.getResultInfo().getTotalResults());
 
     }
 
     @Test
     public void testGetByInteractorList_operandAND() throws Exception {
         RequestInfo info = new RequestInfo();
-        info.setResultType( IntactPsicquicService.RETURN_TYPE_MITAB25 );
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
         info.setBlockSize(50);
 
         DbRef dbRef1 = new DbRef();
-        dbRef1.setId("Imatinib");
+        dbRef1.setId("P21333");
         DbRef dbRef2 = new DbRef();
-        dbRef2.setId("FMS");
+        dbRef2.setId("P07228");
 
         final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "AND");
 
-        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
 
     }
 
     @Test
     public void testGetByInteractionList() throws Exception {
         RequestInfo info = new RequestInfo();
-        info.setResultType( IntactPsicquicService.RETURN_TYPE_MITAB25 );
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
         info.setBlockSize(50);
 
         DbRef dbRef1 = new DbRef();
-        dbRef1.setId("DGI-337977");
+        dbRef1.setId("EBI-5606332");
         DbRef dbRef2 = new DbRef();
-        dbRef2.setId("DGI-337968");
+        dbRef2.setId("EBI-5630468");
 
         final QueryResponse response = service.getByInteractionList(Arrays.asList(dbRef1, dbRef2), info);
 
@@ -195,17 +216,22 @@ public class SolrBasedPsicquicServiceTest {
     @Test
     public void testGetByQuery() throws Exception {
         RequestInfo info = new RequestInfo();
-        info.setResultType( IntactPsicquicService.RETURN_TYPE_MITAB25 );
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB27 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("imatinib", info);
+        final QueryResponse response = service.getByQuery("direct interaction", info);
 
-        Assert.assertEquals(11, response.getResultInfo().getTotalResults());
-        Assert.assertEquals(11, response.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+
+        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
     }
 
     @Test
     public void testGetVersion() {
         Assert.assertEquals("TEST.VERSION", service.getVersion());
-    } */
+    }
 }
