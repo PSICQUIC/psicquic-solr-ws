@@ -11,6 +11,7 @@ import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
+import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -133,17 +134,11 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    InputStream mitab = psicquicResults.getMitab();
-                    if (mitab != null){
-                        return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), mitab,
-                                psicquicResults.getNumberResults(), isCompressed).build();
-                    }
-                    else {
-                        return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), "",
-                                psicquicResults.getNumberResults(), isCompressed).build();
-                    }
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
+                            psicquicResults.getNumberResults(), isCompressed).build();
                 } else {
                     return formatNotSupportedResponse(format);
                 }

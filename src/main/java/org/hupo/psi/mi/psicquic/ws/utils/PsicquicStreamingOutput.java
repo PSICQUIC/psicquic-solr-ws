@@ -17,6 +17,8 @@ package org.hupo.psi.mi.psicquic.ws.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
+import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
+import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
@@ -34,28 +36,30 @@ import java.util.zip.GZIPOutputStream;
  */
 public class PsicquicStreamingOutput implements StreamingOutput {
 
-    private PsicquicSearchResults psicquicSearchResults;
+    private PsicquicSolrServer psicquicSolrServer;
     private boolean gzip;
+    private String query;
+    private int first;
+    private int maxRows;
+    private String returnType;
+    private String [] queryFilters;
 
-    public PsicquicStreamingOutput(PsicquicSearchResults psicquicService){
-        this(psicquicService, false);
+    public PsicquicStreamingOutput(PsicquicSolrServer psicquicService, String query, int first, int maxRows, String returnType, String[] queryFilters){
+        this(psicquicService, query, first, maxRows, returnType, queryFilters, false);
     }
 
-    public PsicquicStreamingOutput(PsicquicSearchResults psicquicService, boolean gzip) {
-        this.psicquicSearchResults = psicquicService;
+    public PsicquicStreamingOutput(PsicquicSolrServer psicquicService, String query, int first, int maxRows, String returnType, String[] queryFilter, boolean gzip) {
+        this.psicquicSolrServer = psicquicService;
         this.gzip = gzip;
-
-    }
-
-    public long countResults() throws IOException {
-
-        if (this.psicquicSearchResults == null){
-           return 0;
-        }
-        return this.psicquicSearchResults.getNumberResults();
+        this.query = query;
+        this.first = first;
+        this.maxRows = maxRows;
+        this.returnType = returnType;
+        this.queryFilters = queryFilter;
     }
 
     public void write(OutputStream outputStream) throws IOException, WebApplicationException {
+
         OutputStream os;
 
         if (isGzip()) {
@@ -66,20 +70,47 @@ public class PsicquicStreamingOutput implements StreamingOutput {
 
         PrintWriter out = new PrintWriter(os);
 
-        try{
-            InputStream mitab = psicquicSearchResults.getMitab();
+        int totalResults = -1;
+        int max = first + this.maxRows;
+        int blockSize = Math.min(SolrBasedPsicquicService.BLOCKSIZE_MAX, max);
+        int firstResult = first;
 
-            if (mitab != null){
-                out.write(IOUtils.toString(mitab));
+        do {
+
+            if (totalResults > 0 && max < firstResult+blockSize) {
+                blockSize = max - firstResult;
+            }
+
+            try {
+                PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, blockSize, returnType, queryFilters);
+                InputStream mitabStream = results.getMitab();
+
+                try {
+                    if (mitabStream != null){
+                        IOUtils.copy(results.getMitab(), out);
+                    }
+                }
+                finally {
+                    mitabStream.close();
+                }
 
                 out.flush();
+
+                totalResults = (int) results.getNumberResults();
+
+                firstResult = firstResult + blockSize;
+
+            } catch (Exception e) {
+                throw new WebApplicationException(e);
             }
-        }
-        finally {
-            out.close();
-            if (isGzip()){
-                os.close();
-            }
+
+        } while (firstResult < totalResults && firstResult < max);
+
+        out.close();
+
+        // close the gzip outputStream
+        if (isGzip()){
+            os.close();
         }        
     }
 

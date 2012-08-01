@@ -25,6 +25,7 @@ import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
+import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
@@ -196,21 +197,24 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                            psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, new String[]{config.getQueryFilter()});
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                             psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getMitab(),
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()});
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                             psicquicResults.getNumberResults(), isCompressed).build();
                 }else {
                     return formatNotSupportedResponse(format);

@@ -58,7 +58,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
     public static int soTimeOut = 100000;
     public static boolean allowCompression = true;
 
-    public static final int BLOCKSIZE_MAX = 200;
+    public static final int BLOCKSIZE_MAX = 5000;
 
     public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(PsicquicSolrServer.RETURN_TYPE_MITAB25,
             PsicquicSolrServer.RETURN_TYPE_MITAB25, PsicquicSolrServer.RETURN_TYPE_MITAB26, PsicquicSolrServer.RETURN_TYPE_MITAB27, PsicquicSolrServer.RETURN_TYPE_COUNT);
