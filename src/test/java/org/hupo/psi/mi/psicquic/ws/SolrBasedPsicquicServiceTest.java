@@ -214,7 +214,39 @@ public class SolrBasedPsicquicServiceTest {
     }
 
     @Test
-    public void testGetByQuery() throws Exception {
+    public void testGetByQueryMitab25() throws Exception {
+        RequestInfo info = new RequestInfo();
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
+        info.setBlockSize(50);
+
+        final QueryResponse response = service.getByQuery("direct interaction", info);
+
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+
+        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+    }
+    @Test
+    public void testGetByQueryMitab26() throws Exception {
+        RequestInfo info = new RequestInfo();
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB26 );
+        info.setBlockSize(50);
+
+        final QueryResponse response = service.getByQuery("direct interaction", info);
+
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+
+        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+    }
+    @Test
+    public void testGetByQueryMiatb27() throws Exception {
         RequestInfo info = new RequestInfo();
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB27 );
         info.setBlockSize(50);
@@ -228,6 +260,20 @@ public class SolrBasedPsicquicServiceTest {
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+    }
+
+    @Test
+    public void testGetByQueryXml() throws Exception {
+        RequestInfo info = new RequestInfo();
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
+        info.setBlockSize(50);
+
+        final QueryResponse response = service.getByQuery("direct interaction", info);
+
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertNull(response.getResultSet().getMitab());
+        Assert.assertNotNull(response.getResultSet().getEntrySet());
+        Assert.assertEquals(1, response.getResultSet().getEntrySet().getEntries().iterator().next().getInteractionList().getInteractions().size());
     }
 
     @Test
