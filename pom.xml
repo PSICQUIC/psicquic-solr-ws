@@ -21,10 +21,11 @@
         <spring.version>3.1.2.RELEASE</spring.version>
 
         <!-- configurable bits -->
-        <jetty.port>9090</jetty.port>
-        <solr.workdir>.</solr.workdir>
 
-        <psicquic.index>${basedir}/target/psicquic-index</psicquic.index>
+        <!-- port of the webservice application -->
+        <jetty.port>9090</jetty.port>
+        <!-- location of the solr work directory (where we find solr-home and index and solr war file) -->
+        <solr.workdir>.</solr.workdir>
         <psicquic.properties/>
         <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
 

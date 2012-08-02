@@ -36,7 +36,6 @@ public class PsicquicConfig implements DisposableBean{
     private String version;
     private String restSpecVersion;
     private String soapSpecVersion;
-    private String indexDirectory;
     private String propertiesAsStrings;
     private String queryFilter;
     private String implementationName;
@@ -74,14 +73,6 @@ public class PsicquicConfig implements DisposableBean{
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public String getIndexDirectory() {
-        return indexDirectory;
-    }
-
-    public void setIndexDirectory(String indexDirectory) {
-        this.indexDirectory = indexDirectory;
     }
 
     public Map<String,String> getProperties() {
