@@ -55,6 +55,8 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
             NotSupportedMethodException,
             NotSupportedTypeException {
 
+        logQueryIfConfigured(query);
+
         boolean isCompressed = ("y".equalsIgnoreCase(compressed) || "true".equalsIgnoreCase(compressed));
 
         int firstResult;

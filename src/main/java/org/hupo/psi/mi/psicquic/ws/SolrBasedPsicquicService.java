@@ -89,29 +89,32 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
     }
 
+    private void logQueryIfConfigured(String query){
+        org.apache.log4j.Logger logger = this.config.getQueryLogger();
+
+        if (logger != null && query != null){
+            logger.info("query: " + query);
+        }
+    }
+
     public QueryResponse getByInteractor(DbRef dbRef, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
         String query = createQuery(SolrFieldName.identifier.toString(), dbRef);
-
         return getByQuery(query, requestInfo);
     }
 
 
-
     public QueryResponse getByInteraction(DbRef dbRef, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
         String query = createQuery(SolrFieldName.interaction_id.toString(), dbRef);
-
         return getByQuery(query, requestInfo);
     }
 
     public QueryResponse getByInteractorList(List<DbRef> dbRefs, RequestInfo requestInfo, String operand) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
         String query = createQuery(SolrFieldName.identifier.toString(), dbRefs, operand);
-
         return getByQuery(query, requestInfo);
     }
 
     public QueryResponse getByInteractionList(List<DbRef> dbRefs, RequestInfo requestInfo) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = createQuery(SolrFieldName.interaction_id.toString(), dbRefs, "OR");
-
         return getByQuery(query, requestInfo);
     }
 
@@ -160,6 +163,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
         }
 
         logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
+        logQueryIfConfigured(query);
 
         // preparing the response
         QueryResponse queryResponse = null;

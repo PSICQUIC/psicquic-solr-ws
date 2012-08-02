@@ -16,6 +16,10 @@
 package org.hupo.psi.mi.psicquic.ws.config;
 
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.Priority;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Collections;
@@ -40,6 +44,9 @@ public class PsicquicConfig implements DisposableBean{
     private String queryFilter;
     private String implementationName;
     private String solrUrl;
+    private String queryLogFileName;
+
+    private Logger queryLogger;
 
     public PsicquicConfig() {
     }
@@ -153,5 +160,31 @@ public class PsicquicConfig implements DisposableBean{
 
     public void setSolrUrl(String solrUrl) {
         this.solrUrl = solrUrl;
+    }
+
+    public String getQueryLogFileName() {
+        return queryLogFileName;
+    }
+
+    public void setQueryLogFileName(String queryLogFileName) {
+        this.queryLogFileName = queryLogFileName;
+
+        if (this.queryLogFileName != null){
+
+            FileAppender fa = new FileAppender();
+            fa.setName("QueryFileLogger");
+            fa.setFile(this.queryLogFileName);
+            fa.setLayout(new PatternLayout("%d [%t] %-5p (%C{1},%L) - %m%n"));
+            fa.setThreshold(Priority.INFO);
+            fa.setAppend(true);
+            fa.activateOptions();
+
+            this.queryLogger = org.apache.log4j.Logger.getLogger(PsicquicConfig.class);
+            this.queryLogger.addAppender(fa);
+        }
+    }
+
+    public Logger getQueryLogger() {
+        return queryLogger;
     }
 }

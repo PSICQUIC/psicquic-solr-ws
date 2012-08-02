@@ -75,6 +75,14 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
     }
 
+    protected void logQueryIfConfigured(String query){
+        org.apache.log4j.Logger logger = this.config.getQueryLogger();
+
+        if (logger != null && query != null){
+            logger.info("query: " + query);
+        }
+    }
+
     public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.id+":"+createQueryValue(interactorAc, db)+ " OR "+SolrFieldName.alias+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults);
@@ -92,6 +100,8 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             NotSupportedTypeException {
         int firstResult;
         int maxResults;
+
+        logQueryIfConfigured(query);
 
         PsicquicSolrServer psicquicSolrServer = getPsicquicSolrServer();
 
