@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
-  <artifactId>psicquic-solr-ws</artifactId>
-  <version>1.3.0-SNAPSHOT</version>
-  <packaging>war</packaging>
+    <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
+    <artifactId>psicquic-solr-ws</artifactId>
+    <version>1.3.0-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
@@ -22,10 +22,11 @@
 
         <!-- configurable bits -->
         <jetty.port>9090</jetty.port>
+        <solr.workdir>.</solr.workdir>
 
         <psicquic.index>${basedir}/target/psicquic-index</psicquic.index>
         <psicquic.properties/>
-        <solr.url>http://localhost:8983/solr/</solr.url>
+        <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
 
         <psicquic.filter/>
         <log.file.name/>
@@ -115,6 +116,75 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>start-jetty-solr</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- start server before cleaning project  -->
+                                <id>setup-solr</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>org.hupo.psi.mi.psicquic.ws.SetupSolrServer</mainClass>
+                                    <arguments>
+                                        <argument>${solr.workdir}</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>7.2.0.RC0</version>
+                        <configuration>
+                            <connectors>
+                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                    <port>${jetty.port}</port>
+                                    <maxIdleTime>600000</maxIdleTime>
+                                </connector>
+                            </connectors>
+                            <scanIntervalSeconds>0</scanIntervalSeconds>
+                            <webAppConfig>
+                                <contextPath>/psicquic</contextPath>
+                            </webAppConfig>
+                            <systemProperties>
+                                <systemProperty>
+                                    <name>solr.solr.home</name>
+                                    <value>${solr.workdir}/solr-home</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <contextHandlers>
+                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
+                                    <war>${solr.workdir}/solr.war</war>
+                                    <contextPath>/solr</contextPath>
+                                </contextHandler>
+                            </contextHandlers>
+                            <stopPort/>
+                            <stopKey/>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-jetty</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>createIndex</id>
             <build>

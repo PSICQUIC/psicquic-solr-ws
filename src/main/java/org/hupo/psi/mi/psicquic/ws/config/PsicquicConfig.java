@@ -169,7 +169,7 @@ public class PsicquicConfig implements DisposableBean{
     public void setQueryLogFileName(String queryLogFileName) {
         this.queryLogFileName = queryLogFileName;
 
-        if (this.queryLogFileName != null){
+        if (this.queryLogFileName != null && this.queryLogFileName.length() > 0){
 
             FileAppender fa = new FileAppender();
             fa.setName("QueryFileLogger");
