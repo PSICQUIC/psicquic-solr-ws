@@ -16,10 +16,7 @@
 package org.hupo.psi.mi.psicquic.ws.config;
 
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.Priority;
+import org.apache.log4j.*;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Collections;
@@ -180,6 +177,7 @@ public class PsicquicConfig implements DisposableBean{
             fa.activateOptions();
 
             this.queryLogger = org.apache.log4j.Logger.getLogger(PsicquicConfig.class);
+            this.queryLogger.setLevel(Level.INFO);
             this.queryLogger.addAppender(fa);
         }
     }
