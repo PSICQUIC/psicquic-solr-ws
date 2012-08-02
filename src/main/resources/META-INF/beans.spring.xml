@@ -24,6 +24,7 @@
         <property name="queryFilter" value="${psicquic.filter}"/>
         <property name="implementationName" value="Reference Implementation"/>
         <property name="solrUrl" value="${solr.url}"/>
+        <property name="queryLogFileName" value="${log.file.name}"/>
     </bean>
    
 </beans>

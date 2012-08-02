@@ -28,6 +28,7 @@
         <solr.url>http://localhost:8983/solr/</solr.url>
 
         <psicquic.filter/>
+        <log.file.name/>
     </properties>
 
     <build>
