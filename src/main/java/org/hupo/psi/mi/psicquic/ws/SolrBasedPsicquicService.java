@@ -230,7 +230,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
         } else if (PsicquicSolrServer.RETURN_TYPE_XML25.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
 
-            EntrySet jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize(), SolrBasedPsicquicService.BLOCKSIZE_MAX );
+            EntrySet jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize());
             resultSet.setEntrySet(jEntrySet);
 
         } else if (PsicquicSolrServer.RETURN_TYPE_COUNT.equals(resultType)) {

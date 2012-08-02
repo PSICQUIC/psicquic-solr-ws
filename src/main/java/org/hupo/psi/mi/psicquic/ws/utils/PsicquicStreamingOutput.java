@@ -107,11 +107,6 @@ public class PsicquicStreamingOutput implements StreamingOutput {
         } while (firstResult < totalResults && firstResult < max);
 
         out.close();
-
-        // close the gzip outputStream
-        if (isGzip()){
-            os.close();
-        }        
     }
 
     public boolean isGzip() {

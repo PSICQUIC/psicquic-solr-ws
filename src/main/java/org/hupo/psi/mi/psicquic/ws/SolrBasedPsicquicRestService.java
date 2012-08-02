@@ -171,7 +171,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 return prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML), entrySet, count, isCompressed).build();
             } else if ((format.toLowerCase().startsWith("rdf") && format.length() > 5) || format.toLowerCase().startsWith("biopax")
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
-                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, format, config.getQueryFilter());
+                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                 InputStream rdf = psicquicResults.createRDFOrBiopax(format);
                 String mediaType = (format.contains("xml") || format.toLowerCase().startsWith("biopax"))? MediaType.APPLICATION_XML : MediaType.TEXT_PLAIN;
@@ -199,21 +199,21 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, isCompressed);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                            psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, new String[]{config.getQueryFilter()});
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, new String[]{config.getQueryFilter()}, isCompressed);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                             psicquicResults.getNumberResults(), isCompressed).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()});
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()}, isCompressed);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                             psicquicResults.getNumberResults(), isCompressed).build();
                 }else {
@@ -321,10 +321,16 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
     private String createQueryValue(String interactorAc, String db) {
         StringBuilder sb = new StringBuilder(256);
-        if (db.length() > 0) sb.append('"').append(db).append(':');
-        sb.append(interactorAc);
-        if (db.length() > 0) sb.append('"');
+        if (db != null && db.length() > 0) {
+            sb.append(db);
 
+            if (interactorAc != null && interactorAc.length() > 0){
+                sb.append(':').append(interactorAc);
+            }
+        }
+        else {
+            sb.append(interactorAc);
+        }
         return sb.toString();
     }
 }

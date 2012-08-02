@@ -108,7 +108,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 return entrySet;
             } else if ((format.toLowerCase().startsWith("rdf") && format.length() > 5) || format.toLowerCase().startsWith("biopax")
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
-                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, format, config.getQueryFilter());
+                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                 InputStream rdf = psicquicResults.createRDFOrBiopax(format);
                 String mediaType = (format.contains("xml") || format.toLowerCase().startsWith("biopax"))? MediaType.APPLICATION_XML : MediaType.TEXT_PLAIN;
@@ -136,7 +136,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, isCompressed);
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
                             psicquicResults.getNumberResults(), isCompressed).build();
                 } else {
