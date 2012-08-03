@@ -26,10 +26,13 @@
         <jetty.port>9090</jetty.port>
         <!-- location of the solr work directory (where we find solr-home and index and solr war file) -->
         <solr.workdir>.</solr.workdir>
+        <!-- properties of the psicquic webservice -->
         <psicquic.properties/>
+        <!-- url to access solr -->
         <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
-
+        <!-- psicquic filter query -->
         <psicquic.filter/>
+        <!-- file name where to log queries -->
         <log.file.name/>
     </properties>
 
@@ -361,6 +364,70 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-Xmx2024m</argument>
+                                <argument>-Xms256m</argument>
+
+                                <argument>-classpath</argument>
+                                <classpath/>
+
+                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                                <argument>${indexing.id}</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>createIndexWithSolrRunning</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-Xmx2024m</argument>
+                                <argument>-Xms256m</argument>
+
+                                <argument>-classpath</argument>
+                                <classpath/>
+
+                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- create solr-home, start solr-server and restart indexing mitab file in solr-home then shutdown solr server-->
+        <profile>
+            <id>restartIndexWithSolrRunning</id>
+            <build>
+                <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
