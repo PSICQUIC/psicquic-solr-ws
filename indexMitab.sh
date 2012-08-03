@@ -1,13 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ $# -e 2 ]
+if [ $# == 2 ];
 then
       MITAB_FILE=$1;
       SOLR_WORKDIR=$2;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server work directory (solr-home and war file): ${SOLR_WORKDIR}"
       mvn clean install -PcreateIndex -Dmitab.file=${MITAB_FILE} -Dsolr.workdir=${SOLR_WORKDIR} -Dmaven.test.skip
-elif [ $# -e 1 ]
+elif [ $# == 1 ];
+then
       MITAB_FILE=$1;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server work directory not provided, use default (current directory)"

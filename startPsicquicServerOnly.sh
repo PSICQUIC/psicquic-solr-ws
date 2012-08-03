@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ $# -e 1 ]
+if [ $# == 1 ];
 then
       SOLR_URL=$1;
       echo "SOLR server url: ${SOLR_URL}"

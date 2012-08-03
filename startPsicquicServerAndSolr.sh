@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ $# -e 1 ]
+if [ $# == 1 ];
 then
       SOLR_WORKDIR=$1;
       echo "SOLR working directory (where we have solr-home and the index and solr war file): ${SOLR_WORKDIR}"
