@@ -8,7 +8,7 @@ then
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server URL: ${SOLR_URL}"
       echo "Indexing job ID: ${INDEXING_ID}"
-      mvn install -PrestartIndex -Dmitab.file=${MITAB_FILE} -Dsolr.url=${SOLR_URL} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
+      mvn install -PrestartIndexWithSolrRunning -Dmitab.file=${MITAB_FILE} -Dsolr.url=${SOLR_URL} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
 elif [ $# == 2 ];
 then
       MITAB_FILE=$1;
@@ -16,7 +16,7 @@ then
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server URL not provided, use default (http://localhost:9090/solr/)"
       echo "Indexing job ID: ${INDEXING_ID}"
-      mvn install -PrestartIndex -Dmitab.file=${MITAB_FILE} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
+      mvn install -PrestartIndexWithSolrRunning -Dmitab.file=${MITAB_FILE} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
 else
       echo ""
       echo "ERROR: wrong number of parameters ($#)."
