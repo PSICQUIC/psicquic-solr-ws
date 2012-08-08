@@ -12,6 +12,7 @@ import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
+import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -128,9 +129,21 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                     count = psicquicResults.getNumberResults();
+                    String fixedQuery = query;
+                    if (fixedQuery.contains("&")){
+                        fixedQuery = query.substring(0, query.indexOf("&"));
+                    }
+                    fixedQuery = fixedQuery.replaceAll("q=", "");
+                    fixedQuery = fixedQuery.replaceAll(":","_");
+                    fixedQuery = fixedQuery.replaceAll(" ","_");
+                    fixedQuery = fixedQuery.replaceAll("\\(","");
+                    fixedQuery = fixedQuery.replaceAll("\\)","");
 
-                    InputStream xgmml = psicquicResults.createXGMML();
-                    Response resp = prepareResponse(Response.status(200).type("application/xgmml"),
+                    String name = fixedQuery.substring(0, Math.min(10, fixedQuery.length())) + ".xgmml";
+
+                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count, isCompressed);
+
+                    Response resp = prepareResponse(Response.status(200).type("application/xgmml").header("Content-Disposition", "attachment; filename="+name),
                             xgmml, count, isCompressed)
                             .build();
 

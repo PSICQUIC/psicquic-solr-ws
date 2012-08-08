@@ -26,6 +26,7 @@ import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
+import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
@@ -195,12 +196,25 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     return psicquicResults.getNumberResults();
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     count = psicquicResults.getNumberResults();
 
-                    InputStream xgmml = psicquicResults.createXGMML();
-                    Response resp = prepareResponse(Response.status(200).type("application/xgmml"),
+                    String fixedQuery = query;
+                    if (fixedQuery.contains("&")){
+                        fixedQuery = query.substring(0, query.indexOf("&"));
+                    }
+                    fixedQuery = fixedQuery.replaceAll("q=", "");
+                    fixedQuery = fixedQuery.replaceAll(":","_");
+                    fixedQuery = fixedQuery.replaceAll(" ","_");
+                    fixedQuery = fixedQuery.replaceAll("\\(","");
+                    fixedQuery = fixedQuery.replaceAll("\\)","");
+
+                    String name = fixedQuery.substring(0, Math.min(10, fixedQuery.length())) + ".xgmml";
+
+                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count, isCompressed);
+
+                    Response resp = prepareResponse(Response.status(200).type("application/xgmml").header("Content-Disposition", "attachment; filename="+name),
                             xgmml, count, isCompressed)
                             .build();
 

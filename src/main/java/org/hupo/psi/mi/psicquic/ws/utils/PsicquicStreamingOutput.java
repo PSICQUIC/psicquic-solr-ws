@@ -36,13 +36,13 @@ import java.util.zip.GZIPOutputStream;
  */
 public class PsicquicStreamingOutput implements StreamingOutput {
 
-    private PsicquicSolrServer psicquicSolrServer;
-    private boolean gzip;
-    private String query;
-    private int first;
-    private int maxRows;
-    private String returnType;
-    private String [] queryFilters;
+    protected PsicquicSolrServer psicquicSolrServer;
+    protected boolean gzip;
+    protected String query;
+    protected int first;
+    protected int maxRows;
+    protected String returnType;
+    protected String [] queryFilters;
 
     public PsicquicStreamingOutput(PsicquicSolrServer psicquicService, String query, int first, int maxRows, String returnType, String[] queryFilters){
         this(psicquicService, query, first, maxRows, returnType, queryFilters, false);
