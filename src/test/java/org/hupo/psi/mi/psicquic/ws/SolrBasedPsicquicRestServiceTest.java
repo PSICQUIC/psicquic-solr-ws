@@ -22,6 +22,7 @@ import org.hupo.psi.mi.psicquic.indexing.batch.SolrMitabIndexer;
 import org.hupo.psi.mi.psicquic.model.server.SolrJettyRunner;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
+import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -217,7 +218,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_xgmml() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "xgmml", "0", "200", "n");
 
-        InputStream pso = (InputStream) response.getEntity();
+        XgmmlStreamingOutput pso = (XgmmlStreamingOutput) response.getEntity();
 
         Assert.assertNotNull(pso);
     }
