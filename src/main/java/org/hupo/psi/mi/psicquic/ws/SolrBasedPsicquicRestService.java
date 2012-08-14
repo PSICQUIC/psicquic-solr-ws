@@ -61,6 +61,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final String RETURN_TYPE_MITAB27 = "tab27";
     public static final String RETURN_TYPE_MITAB27_BIN = "tab27-bin";
     public static final String RETURN_TYPE_BIOPAX = "biopax";
+    public static final String RETURN_TYPE_BIOPAX_L2 = "biopax-L2";
+    public static final String RETURN_TYPE_BIOPAX_L3 = "biopax-L3";
     public static final String RETURN_TYPE_XGMML = "xgmml";
     public static final String RETURN_TYPE_RDF_XML = "rdf-xml";
     public static final String RETURN_TYPE_RDF_XML_ABBREV = "rdf-xml-abbrev";
@@ -83,7 +85,9 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             RETURN_TYPE_RDF_XML_ABBREV,
             RETURN_TYPE_RDF_N3,
             RETURN_TYPE_RDF_TURTLE,
-            RETURN_TYPE_COUNT);
+            RETURN_TYPE_COUNT,
+            RETURN_TYPE_BIOPAX_L2,
+            RETURN_TYPE_BIOPAX_L3);
 
     public SolrBasedPsicquicRestService() {
     }
