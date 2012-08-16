@@ -34,10 +34,12 @@
         <psicquic.filter/>
         <!-- file name where to log queries -->
         <log.file.name/>
+        <!-- service name. -->
+        <service.name>default</service.name>
     </properties>
 
     <build>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${service.name}-psicquic-ws-${version}</finalName>
 
         <resources>
             <resource>

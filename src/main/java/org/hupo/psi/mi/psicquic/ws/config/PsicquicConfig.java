@@ -45,6 +45,7 @@ public class PsicquicConfig implements DisposableBean{
     private String proxyPort;
 
     private Logger queryLogger;
+    private String statsDirectory;
 
     public PsicquicConfig() {
     }
@@ -193,5 +194,13 @@ public class PsicquicConfig implements DisposableBean{
 
     public void setProxyPort(String proxyPort) {
         this.proxyPort = proxyPort;
+    }
+
+    public String getStatsDirectory() {
+        return statsDirectory;
+    }
+
+    public void setStatsDirectory(String statsDirectory) {
+        this.statsDirectory = statsDirectory;
     }
 }
