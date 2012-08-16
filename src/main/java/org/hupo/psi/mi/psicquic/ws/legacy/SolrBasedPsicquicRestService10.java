@@ -16,6 +16,15 @@
 package org.hupo.psi.mi.psicquic.ws.legacy;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
@@ -29,6 +38,8 @@ import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.CompressedStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
@@ -53,6 +64,7 @@ import java.util.List;
  */
 @Controller
 public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
+    private final Logger logger = LoggerFactory.getLogger(SolrBasedPsicquicRestService10.class);
 
     @Autowired
     private PsicquicConfig config;
@@ -61,10 +73,8 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
     public PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
-            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl());
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
 
-            solrServer.setMaxTotalConnections(SolrBasedPsicquicService.maxTotalConnections);
-            solrServer.setDefaultMaxConnectionsPerHost(SolrBasedPsicquicService.defaultMaxConnectionsPerHost);
             solrServer.setConnectionTimeout(SolrBasedPsicquicService.connectionTimeOut);
             solrServer.setSoTimeout(SolrBasedPsicquicService.soTimeOut);
             solrServer.setAllowCompression(SolrBasedPsicquicService.allowCompression);
@@ -231,5 +241,38 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         } else {
             return mimeType;
         }
+    }
+
+    private HttpClient createHttpClient() {
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory
+                .getSocketFactory()));
+        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory
+                .getSocketFactory()));
+
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+        cm.setMaxTotal(SolrBasedPsicquicService.maxTotalConnections);
+        cm.setDefaultMaxPerRoute(SolrBasedPsicquicService.defaultMaxConnectionsPerHost);
+
+        HttpClient httpClient = new DefaultHttpClient(cm);
+
+        String proxyHost = config.getProxyHost();
+        String proxyPort = config.getProxyPort();
+
+        if (isValueSet(proxyHost) && proxyHost.trim().length() > 0 &&
+                isValueSet(proxyPort) && proxyPort.trim().length() > 0) {
+            try{
+                HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
+                httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+            }
+            catch (Exception e){
+                logger.error("Impossible to create proxy host:"+proxyHost+", port:"+proxyPort,e);
+            }
+        }
+
+        return httpClient;
+    }
+    private boolean isValueSet(String value) {
+        return value != null && !value.startsWith("$");
     }
 }

@@ -21,6 +21,10 @@ import org.apache.cxf.feature.Features;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -82,8 +86,6 @@ public class SolrBasedPsicquicService implements PsicquicService {
         if (psicquicSolrServer == null) {
             HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
 
-            solrServer.setMaxTotalConnections(maxTotalConnections);
-            solrServer.setDefaultMaxConnectionsPerHost(defaultMaxConnectionsPerHost);
             solrServer.setConnectionTimeout(connectionTimeOut);
             solrServer.setSoTimeout(soTimeOut);
             solrServer.setAllowCompression(allowCompression);
@@ -289,16 +291,23 @@ public class SolrBasedPsicquicService implements PsicquicService {
     }
 
     private HttpClient createHttpClient() {
-        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
+        SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory
+                .getSocketFactory()));
+        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory
+                .getSocketFactory()));
+
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
         cm.setMaxTotal(maxTotalConnections);
+        cm.setDefaultMaxPerRoute(defaultMaxConnectionsPerHost);
 
         HttpClient httpClient = new DefaultHttpClient(cm);
 
         String proxyHost = config.getProxyHost();
         String proxyPort = config.getProxyPort();
 
-        if (proxyHost != null && proxyHost.trim().length() > 0 &&
-                proxyPort != null && proxyPort.trim().length() > 0) {
+        if (isValueSet(proxyHost) && proxyHost.trim().length() > 0 &&
+                isValueSet(proxyPort) && proxyPort.trim().length() > 0) {
             try{
                 HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
                 httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
@@ -309,6 +318,10 @@ public class SolrBasedPsicquicService implements PsicquicService {
         }
 
         return httpClient;
+    }
+
+    private boolean isValueSet(String value) {
+        return value != null && !value.startsWith("$");
     }
 
     public static int getMaxTotalConnections() {
