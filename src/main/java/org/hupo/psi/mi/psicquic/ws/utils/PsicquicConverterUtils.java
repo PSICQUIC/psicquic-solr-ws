@@ -1,6 +1,7 @@
 package org.hupo.psi.mi.psicquic.ws.utils;
 
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
+import psidev.psi.mi.tab.PsimiTabException;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml.converter.impl254.EntrySetConverter;
@@ -22,7 +23,7 @@ import java.io.IOException;
 
 public class PsicquicConverterUtils {
 
-    public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize, int maxSize) throws ConverterException, IOException, XmlConversionException, IllegalAccessException {
+    public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize, int maxSize) throws PsimiTabException, IOException, XmlConversionException, IllegalAccessException, ConverterException {
         // get the entryset from the results and converts to jaxb
         psidev.psi.mi.xml.model.EntrySet psiEntrySet = psicquicSearchResults.createEntrySet();
         EntrySetConverter entryConverter = new EntrySetConverter();
@@ -59,7 +60,7 @@ public class PsicquicConverterUtils {
         return jEntrySet;
     }
 
-    public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize) throws ConverterException, IOException, XmlConversionException, IllegalAccessException {
+    public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize) throws ConverterException, IOException, XmlConversionException, IllegalAccessException, PsimiTabException {
         // get the entryset from the results and converts to jaxb
         psidev.psi.mi.xml.model.EntrySet psiEntrySet = psicquicSearchResults.createEntrySet();
         EntrySetConverter entryConverter = new EntrySetConverter();

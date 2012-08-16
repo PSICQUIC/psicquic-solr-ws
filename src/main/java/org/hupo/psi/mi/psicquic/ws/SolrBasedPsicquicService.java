@@ -18,6 +18,11 @@ package org.hupo.psi.mi.psicquic.ws;
 import com.google.common.primitives.Ints;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.feature.Features;
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
@@ -31,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
+import psidev.psi.mi.tab.PsimiTabException;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -74,7 +80,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
     public PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
-            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl());
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
 
             solrServer.setMaxTotalConnections(maxTotalConnections);
             solrServer.setDefaultMaxConnectionsPerHost(defaultMaxConnectionsPerHost);
@@ -234,7 +240,13 @@ public class SolrBasedPsicquicService implements PsicquicService {
         } else if (PsicquicSolrServer.RETURN_TYPE_XML25.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
 
-            EntrySet jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize());
+            EntrySet jEntrySet = null;
+            try {
+                jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize());
+            } catch (PsimiTabException e) {
+                jEntrySet = new EntrySet();
+                logger.error("Impossible to convert to xml", e);
+            }
             resultSet.setEntrySet(jEntrySet);
 
         } else if (PsicquicSolrServer.RETURN_TYPE_COUNT.equals(resultType)) {
@@ -274,6 +286,29 @@ public class SolrBasedPsicquicService implements PsicquicService {
         }
 
         return properties;
+    }
+
+    private HttpClient createHttpClient() {
+        PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
+        cm.setMaxTotal(maxTotalConnections);
+
+        HttpClient httpClient = new DefaultHttpClient(cm);
+
+        String proxyHost = config.getProxyHost();
+        String proxyPort = config.getProxyPort();
+
+        if (proxyHost != null && proxyHost.trim().length() > 0 &&
+                proxyPort != null && proxyPort.trim().length() > 0) {
+            try{
+                HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
+                httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+            }
+            catch (Exception e){
+                logger.error("Impossible to create proxy host:"+proxyHost+", port:"+proxyPort,e);
+            }
+        }
+
+        return httpClient;
     }
 
     public static int getMaxTotalConnections() {

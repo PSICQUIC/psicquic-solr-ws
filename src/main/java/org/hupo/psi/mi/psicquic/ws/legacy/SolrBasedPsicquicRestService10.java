@@ -32,6 +32,7 @@ import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
+import psidev.psi.mi.tab.PsimiTabException;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -138,6 +139,9 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             } catch (ConverterException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             } catch (IOException e) {
+                throw new PsicquicServiceException("Problem executing the query " + query, e);
+            }
+            catch (PsimiTabException e){
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             }
 
