@@ -16,7 +16,7 @@
 package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.DbRef;
 import org.hupo.psi.mi.psicquic.PsicquicService;
 import org.hupo.psi.mi.psicquic.QueryResponse;
@@ -25,7 +25,10 @@ import org.hupo.psi.mi.psicquic.indexing.batch.SolrMitabIndexer;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.model.server.SolrJettyRunner;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Arrays;
@@ -56,7 +59,7 @@ public class SolrBasedPsicquicServiceTest {
         SolrMitabIndexer indexer = (SolrMitabIndexer)context.getBean("solrMitabIndexer");
         indexer.startJob("mitabIndexNegativeJob");
 
-        SolrServer solrServer = solrJettyRunner.getSolrServer();
+        HttpSolrServer solrServer = solrJettyRunner.getSolrServer();
         Assert.assertEquals(4L, solrServer.query(new SolrQuery("*:*")).getResults().getNumFound());
 
         PsicquicConfig config = (PsicquicConfig)context.getBean("testPsicquicConfig");
