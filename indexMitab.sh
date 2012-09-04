@@ -6,13 +6,13 @@ then
       SOLR_WORKDIR=$2;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server work directory (solr-home and war file): ${SOLR_WORKDIR}"
-      mvn clean install -PcreateIndex -DmitabFile=${MITAB_FILE} -Dsolr.workdir=${SOLR_WORKDIR} failsafe:integration-test
+      mvn clean install -PcreateIndex -DmitabFile=${MITAB_FILE} -Dsolr.workdir=${SOLR_WORKDIR}
 elif [ $# == 1 ];
 then
       MITAB_FILE=$1;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server work directory not provided, use default (current directory)"
-      mvn clean install -PcreateIndex -DmitabFile=${MITAB_FILE} failsafe:integration-test
+      mvn clean install -PcreateIndex -DmitabFile=${MITAB_FILE}
 else
       echo ""
       echo "ERROR: wrong number of parameters ($#)."

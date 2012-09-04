@@ -6,13 +6,13 @@ then
       SOLR_URL=$2;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server URL : ${SOLR_URL}"
-      mvn clean install -PcreateIndexWithSolrRunning -DmitabFile=${MITAB_FILE} -DsolrUrl=${SOLR_URL} failsafe:integration-test
+      mvn clean install -PcreateIndexWithSolrRunning -DmitabFile=${MITAB_FILE} -DsolrUrl=${SOLR_URL} -Dmaven.test.skip
 elif [ $# == 1 ];
 then
       MITAB_FILE=$1;
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server URL not provided, use default (http://localhost:9090/solr/)"
-      mvn clean install -PcreateIndexWithSolrRunning -DmitabFile=${MITAB_FILE} failsafe:integration-test
+      mvn clean install -PcreateIndexWithSolrRunning -DmitabFile=${MITAB_FILE} -Dmaven.test.skip
 else
       echo ""
       echo "ERROR: wrong number of parameters ($#)."
