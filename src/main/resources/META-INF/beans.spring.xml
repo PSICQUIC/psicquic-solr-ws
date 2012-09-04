@@ -14,7 +14,7 @@
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
-    <context:property-placeholder location="classpath:/META-INF/psicquic.properties"/>
+    <context:property-placeholder location="classpath:/psicquic.properties"/>
     
     <bean name="psicquicConfig" class="org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig">
         <property name="groupId" value="${pom.groupId}"/>

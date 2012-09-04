@@ -36,6 +36,8 @@
         <log.file.name/>
         <!-- service name. -->
         <service.name>default</service.name>
+        <!-- mitab file -->
+        <mitab.file>${mitabFile}</mitab.file>
     </properties>
 
     <build>
@@ -286,7 +288,7 @@
                                 <argument>-classpath</argument>
                                 <classpath/>
 
-                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -386,7 +388,7 @@
                                 <argument>-classpath</argument>
                                 <classpath/>
 
-                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                                 <argument>${indexing.id}</argument>
                             </arguments>
                         </configuration>
@@ -418,7 +420,7 @@
                                 <argument>-classpath</argument>
                                 <classpath/>
 
-                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                             </arguments>
                         </configuration>
                     </plugin>
@@ -450,7 +452,7 @@
                                 <argument>-classpath</argument>
                                 <classpath/>
 
-                                <argument>org.hupo.psi.mi.indexing.batch.SolrMitabIndexer</argument>
+                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                                 <argument>${indexing.id}</argument>
                             </arguments>
                         </configuration>

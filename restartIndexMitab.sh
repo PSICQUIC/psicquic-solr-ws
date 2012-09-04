@@ -8,7 +8,7 @@ then
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server URL: ${SOLR_WORKDIR}"
       echo "Indexing job ID: ${INDEXING_ID}"
-      mvn install -PrestartIndex -Dmitab.file=${MITAB_FILE} -Dsolr.workdir=${SOLR_WORKDIR} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
+      mvn install -PrestartIndex -DmitabFile=${MITAB_FILE} -Dsolr.workdir=${SOLR_WORKDIR} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
 elif [ $# == 2 ];
 then
       MITAB_FILE=$1;
@@ -16,7 +16,7 @@ then
       echo "MITAB file: ${MITAB_FILE}"
       echo "SOLR server working directory not provided, use default (current directory)"
       echo "Indexing job ID: ${INDEXING_ID}"
-      mvn install -PrestartIndex -Dmitab.file=${MITAB_FILE} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
+      mvn install -PrestartIndex -DmitabFile=${MITAB_FILE} -Dindexing.id=${INDEXING_ID} -Dmaven.test.skip
 else
       echo ""
       echo "ERROR: wrong number of parameters ($#)."
