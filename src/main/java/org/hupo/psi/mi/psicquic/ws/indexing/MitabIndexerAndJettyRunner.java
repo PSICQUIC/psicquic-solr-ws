@@ -56,7 +56,7 @@ public class MitabIndexerAndJettyRunner {
             SetupSolrServer.main(new String[]{runner.getWorkingDir()});
 
             SolrJettyRunner solrJettyRunner = new SolrJettyRunner(new File(runner.getWorkingDir()));
-            solrJettyRunner.setPort();
+            solrJettyRunner.setPort(runner.getPort());
             solrJettyRunner.start();
 
             SolrMitabIndexer rm = (SolrMitabIndexer)
