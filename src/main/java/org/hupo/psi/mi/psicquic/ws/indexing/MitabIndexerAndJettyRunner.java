@@ -26,6 +26,7 @@ import java.io.File;
 public class MitabIndexerAndJettyRunner {
 
     private String workingDir = "target/solr";
+    private int port;
 
     public String getWorkingDir() {
         return workingDir;
@@ -33,6 +34,14 @@ public class MitabIndexerAndJettyRunner {
 
     public void setWorkingDir(String workingDir) {
         this.workingDir = workingDir;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public static void main(String [] args) throws JobInstanceAlreadyCompleteException, JobParametersInvalidException, NoSuchJobExecutionException, NoSuchJobException, JobRestartException, NoSuchJobInstanceException, JobExecutionAlreadyRunningException {
@@ -47,6 +56,7 @@ public class MitabIndexerAndJettyRunner {
             SetupSolrServer.main(new String[]{runner.getWorkingDir()});
 
             SolrJettyRunner solrJettyRunner = new SolrJettyRunner(new File(runner.getWorkingDir()));
+            solrJettyRunner.setPort();
             solrJettyRunner.start();
 
             SolrMitabIndexer rm = (SolrMitabIndexer)
