@@ -30,6 +30,7 @@
         <psicquic.properties/>
         <!-- url to access solr -->
         <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
+        <solrUrl>http://localhost:${jetty.port}/solr/</solrUrl>
         <!-- psicquic filter query -->
         <psicquic.filter/>
         <!-- file name where to log queries -->
