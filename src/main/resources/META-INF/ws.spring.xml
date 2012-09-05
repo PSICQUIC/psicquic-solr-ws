@@ -65,7 +65,7 @@
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="psicquicRestServiceCurrent" address="/current">
+    <jaxrs:server id="psicquicRestServiceCurrent" address="/current/search">
         <jaxrs:serviceBeans>
             <ref bean="restService13"/>
         </jaxrs:serviceBeans>
