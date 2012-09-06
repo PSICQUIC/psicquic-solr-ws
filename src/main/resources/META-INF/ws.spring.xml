@@ -41,25 +41,25 @@
                     implementor="#solrBasedPsicquicService" address="/psicquic">
     </jaxws:endpoint>
 
-    <jaxrs:server id="psicquicRestService10" address="/v1.0">
+    <jaxrs:server id="psicquicRestService10" address="/v1.0/search">
         <jaxrs:serviceBeans>
             <ref bean="restService10"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="psicquicRestService11" address="/v1.1">
+    <jaxrs:server id="psicquicRestService11" address="/v1.1/search">
         <jaxrs:serviceBeans>
             <ref bean="restService11"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="psicquicRestService12" address="/v1.2">
+    <jaxrs:server id="psicquicRestService12" address="/v1.2/search">
         <jaxrs:serviceBeans>
             <ref bean="restService12"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="psicquicRestService13" address="/v1.3">
+    <jaxrs:server id="psicquicRestService13" address="/v1.3/search">
         <jaxrs:serviceBeans>
             <ref bean="restService13"/>
         </jaxrs:serviceBeans>
