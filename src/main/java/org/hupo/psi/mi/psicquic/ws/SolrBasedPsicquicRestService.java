@@ -92,7 +92,12 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final List<String> SUPPORTED_REST_RETURN_TYPES = Arrays.asList(
             RETURN_TYPE_XML25,
             RETURN_TYPE_MITAB25,
-            RETURN_TYPE_BIOPAX,
+			RETURN_TYPE_MITAB25_BIN,
+			RETURN_TYPE_MITAB26,
+			RETURN_TYPE_MITAB26_BIN,
+			RETURN_TYPE_MITAB27,
+			RETURN_TYPE_MITAB27_BIN,
+			RETURN_TYPE_BIOPAX,
             RETURN_TYPE_XGMML,
             RETURN_TYPE_RDF_XML,
             RETURN_TYPE_RDF_XML_ABBREV,
