@@ -1,19 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
     <artifactId>psicquic-solr-ws</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
     <packaging>war</packaging>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
 
     <scm>
-        <connection>scm:svn:https://psicquic.googlecode.com/svn/trunk/psicquic-solr-ws</connection>
-        <developerConnection>scm:svn:https://psicquic.googlecode.com/svn/trunk/psicquic-solr-ws</developerConnection>
-        <url>http://code.google.com/p/psicquic/source/browse/#svn/trunk/psicquic-solr-ws</url>
+        <connection>scm:svn:https://psicquic.googlecode.com/svn/tags/psicquic-solr-ws-1.3.0</connection>
+        <developerConnection>scm:svn:https://psicquic.googlecode.com/svn/tags/psicquic-solr-ws-1.3.0</developerConnection>
+        <url>http://code.google.com/p/psicquic/source/browse/#svn/tags/psicquic-solr-ws-1.3.0</url>
     </scm>
 
     <properties>
@@ -27,14 +26,14 @@
         <!-- location of the solr work directory (where we find solr-home and index and solr war file) -->
         <solr.workdir>.</solr.workdir>
         <!-- properties of the psicquic webservice -->
-        <psicquic.properties/>
+        <psicquic.properties />
         <!-- url to access solr -->
         <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
         <solrUrl>http://localhost:${jetty.port}/solr/</solrUrl>
         <!-- psicquic filter query -->
-        <psicquic.filter/>
+        <psicquic.filter />
         <!-- file name where to log queries -->
-        <log.file.name/>
+        <log.file.name />
         <!-- service name. -->
         <service.name>default</service.name>
         <!-- mitab file -->
@@ -108,8 +107,8 @@
                             <port>${jetty.port}</port>
                         </connector>
                     </connectors>
-                    <stopKey/>
-                    <stopPort/>
+                    <stopKey />
+                    <stopPort />
                 </configuration>
             </plugin>
 
@@ -179,8 +178,8 @@
                                     <contextPath>/solr</contextPath>
                                 </contextHandler>
                             </contextHandlers>
-                            <stopPort/>
-                            <stopKey/>
+                            <stopPort />
+                            <stopKey />
                         </configuration>
                         <executions>
                             <execution>
@@ -219,7 +218,7 @@
                                 <argument>-Xms256m</argument>
 
                                 <argument>-classpath</argument>
-                                <classpath/>
+                                <classpath />
 
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner</argument>
                             </arguments>
@@ -251,7 +250,7 @@
                                 <argument>-Xms256m</argument>
 
                                 <argument>-classpath</argument>
-                                <classpath/>
+                                <classpath />
 
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner</argument>
                                 <argument>${indexing.id}</argument>
@@ -283,7 +282,7 @@
                                 <argument>-Xms256m</argument>
 
                                 <argument>-classpath</argument>
-                                <classpath/>
+                                <classpath />
 
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                             </arguments>
@@ -315,7 +314,7 @@
                                 <argument>-Xms256m</argument>
 
                                 <argument>-classpath</argument>
-                                <classpath/>
+                                <classpath />
 
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                                 <argument>${indexing.id}</argument>
