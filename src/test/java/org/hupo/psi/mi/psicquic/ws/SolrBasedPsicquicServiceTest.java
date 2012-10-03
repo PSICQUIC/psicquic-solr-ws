@@ -91,8 +91,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response = service.getByInteractor(dbRef, info);
 
-        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
-        Assert.assertEquals(2, response.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
         // search for altidA or altidB
         DbRef dbRef2 = new DbRef();
@@ -101,8 +101,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response2 = service.getByInteractor(dbRef2, info);
 
-        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
-        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response2.getResultSet().getMitab().split("\n").length);
 
         // search for aliasA or aliasB
         DbRef dbRef3 = new DbRef();
@@ -111,8 +111,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response3 = service.getByInteractor(dbRef3, info);
 
-        Assert.assertEquals(2, response3.getResultInfo().getTotalResults());
-        Assert.assertEquals(2, response3.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
 
         // serch for db only
         DbRef dbRef4 = new DbRef();
@@ -120,8 +120,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response4 = service.getByInteractor(dbRef4, info);
 
-        Assert.assertEquals(4, response4.getResultInfo().getTotalResults());
-        Assert.assertEquals(4, response4.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(2, response4.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response4.getResultSet().getMitab().split("\n").length);
 
         // serch for id only
         DbRef dbRef5 = new DbRef();
@@ -129,8 +129,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response5 = service.getByInteractor(dbRef5, info);
 
-        Assert.assertEquals(2, response5.getResultInfo().getTotalResults());
-        Assert.assertEquals(2, response5.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response5.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response5.getResultSet().getMitab().split("\n").length);
     }
 
     @Test
@@ -153,8 +153,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response2 = service.getByInteraction(dbRef2, info);
 
-        Assert.assertEquals(4, response2.getResultInfo().getTotalResults());
-        Assert.assertEquals(4, response2.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
 
         // serch for id only
         DbRef dbRef3 = new DbRef();
@@ -179,7 +179,7 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "OR");
 
-        Assert.assertEquals(4, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
 
     }
 
@@ -196,7 +196,7 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "AND");
 
-        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
 
     }
 
@@ -213,7 +213,7 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response = service.getByInteractionList(Arrays.asList(dbRef1, dbRef2), info);
 
-        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
     }
 
     @Test
@@ -229,8 +229,8 @@ public class SolrBasedPsicquicServiceTest {
 
         final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
 
-        Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
-        Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+        Assert.assertEquals(1, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response2.getResultSet().getMitab().split("\n").length);
     }
     @Test
     public void testGetByQueryMitab26() throws Exception {

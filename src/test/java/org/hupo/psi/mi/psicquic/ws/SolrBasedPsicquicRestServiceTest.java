@@ -86,7 +86,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
 
-        Assert.assertEquals(2, baos.toString().split("\n").length);
+        Assert.assertEquals(1, baos.toString().split("\n").length);
 
         // search for altidA or altidB
         ResponseImpl response2 = (ResponseImpl) service.getByInteractor("EBI-5606437", "intact", "tab25", "0", "50", "n");
@@ -96,7 +96,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
         pso2.write(baos2);
 
-        Assert.assertEquals(2, baos2.toString().split("\n").length);
+        Assert.assertEquals(1, baos2.toString().split("\n").length);
 
         // search for aliasA or aliasB
         ResponseImpl response3 = (ResponseImpl) service.getByInteractor("RGD-receptor", "uniprotkb", "tab25", "0", "50", "n");
@@ -106,7 +106,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos3 = new ByteArrayOutputStream();
         pso3.write(baos3);
 
-        Assert.assertEquals(2, baos3.toString().split("\n").length);
+        Assert.assertEquals(1, baos3.toString().split("\n").length);
 
         // serch for db only
         ResponseImpl response4 = (ResponseImpl) service.getByInteractor(null, "uniprotkb", "tab25", "0", "50", "n");
@@ -116,7 +116,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos4 = new ByteArrayOutputStream();
         pso4.write(baos4);
 
-        Assert.assertEquals(4, baos4.toString().split("\n").length);
+        Assert.assertEquals(2, baos4.toString().split("\n").length);
 
         // serch for id only
         ResponseImpl response5 = (ResponseImpl) service.getByInteractor("RGD-receptor", null, "tab25", "0", "50", "n");
@@ -126,7 +126,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos5 = new ByteArrayOutputStream();
         pso5.write(baos5);
 
-        Assert.assertEquals(2, baos5.toString().split("\n").length);
+        Assert.assertEquals(1, baos5.toString().split("\n").length);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
         pso2.write(baos2);
 
-        Assert.assertEquals(4, baos2.toString().split("\n").length);
+        Assert.assertEquals(2, baos2.toString().split("\n").length);
 
         // search for db:id only
         ResponseImpl response3 = (ResponseImpl) service.getByInteraction("EBI-5630468", "intact", "tab25", "0", "50", "n");
@@ -177,7 +177,7 @@ public class SolrBasedPsicquicRestServiceTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
 
-        Assert.assertEquals(2, baos.toString().split("\n").length);
+        Assert.assertEquals(1, baos.toString().split("\n").length);
     }
 
     @Test

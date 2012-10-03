@@ -45,15 +45,6 @@ public class PsicquicConverterUtils {
             attr2.setValue("Total results found: "+psicquicSearchResults.getNumberResults());
             attrList.getAttributes().add(attr2);
 
-            // add warning if the batch size requested is higher than the maximum allowed
-            if (blockSize > maxSize && maxSize < psicquicSearchResults.getNumberResults()) {
-                Attribute attrWarning = new Attribute();
-                attrWarning.setValue("Warning: The requested block size (" + blockSize + ") was higher than the maximum allowed (" + maxSize + ") by PSICQUIC the service. " +
-                        maxSize + " results were returned from a total found of "+psicquicSearchResults.getNumberResults());
-                attrList.getAttributes().add(attrWarning);
-
-            }
-
             entry.setAttributeList(attrList);
         }
 
