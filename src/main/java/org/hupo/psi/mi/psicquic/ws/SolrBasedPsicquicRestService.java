@@ -232,7 +232,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     String name = fixedQuery.substring(0, Math.min(10, fixedQuery.length())) + ".xgmml";
 
-                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count, isCompressed);
+                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()}, (int) count, isCompressed);
 
                     Response resp = prepareResponse(Response.status(200).type("application/xgmml").header("Content-Disposition", "attachment; filename="+name),
                             xgmml, count, isCompressed)
