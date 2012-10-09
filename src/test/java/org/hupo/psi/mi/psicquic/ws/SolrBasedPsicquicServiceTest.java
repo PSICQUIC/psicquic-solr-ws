@@ -238,12 +238,12 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB26 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("direct interaction", info);
+        final QueryResponse response = service.getByQuery("direct interaction AND negative:(false OR true)", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
@@ -254,12 +254,12 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB27 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("direct interaction", info);
+        final QueryResponse response = service.getByQuery("direct interaction AND negative:(false OR true)", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
@@ -269,7 +269,7 @@ public class SolrBasedPsicquicServiceTest {
     public void testGetByQueryXml() throws Exception {
         RequestInfo info = new RequestInfo();
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
-        info.setBlockSize(50);
+        info.setBlockSize(1000);
 
         final QueryResponse response = service.getByQuery("direct interaction", info);
 

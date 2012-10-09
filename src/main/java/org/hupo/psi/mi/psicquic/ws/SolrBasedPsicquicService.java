@@ -15,8 +15,6 @@
  */
 package org.hupo.psi.mi.psicquic.ws;
 
-import com.google.common.primitives.Ints;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.feature.Features;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
@@ -30,23 +28,19 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
-import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
-import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
+import org.hupo.psi.mi.psicquic.ws.utils.StreamingQueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
-import psidev.psi.mi.tab.PsimiTabException;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
-import psidev.psi.mi.xml254.jaxb.EntrySet;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -61,14 +55,14 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
     private final Logger logger = LoggerFactory.getLogger(SolrBasedPsicquicService.class);
 
-    // settings SOLRServer 
+    // settings SOLRServer
     public static int maxTotalConnections = 128;
-    public static int defaultMaxConnectionsPerHost = 32;
+    public static int defaultMaxConnectionsPerHost = 24;
     public static int connectionTimeOut = 20000;
     public static int soTimeOut = 20000;
     public static boolean allowCompression = true;
 
-    public static final int BLOCKSIZE_MAX = 1000;
+    public static final int BLOCKSIZE_MAX = 500;
 
     public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(PsicquicSolrServer.RETURN_TYPE_XML25,
             PsicquicSolrServer.RETURN_TYPE_MITAB25, PsicquicSolrServer.RETURN_TYPE_MITAB26, PsicquicSolrServer.RETURN_TYPE_MITAB27, PsicquicSolrServer.RETURN_TYPE_COUNT);
@@ -162,7 +156,6 @@ public class SolrBasedPsicquicService implements PsicquicService {
     }
 
     public QueryResponse getByQuery(String query, RequestInfo requestInfo) throws NotSupportedMethodException, NotSupportedTypeException, PsicquicServiceException {
-        final int blockSize = Math.min(requestInfo.getBlockSize(), BLOCKSIZE_MAX);
 
         final String resultType = requestInfo.getResultType();
 
@@ -170,7 +163,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
             throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+getSupportedReturnTypes());
         }
 
-        logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), blockSize});
+        logger.debug("Searching: {} ({}/{})", new Object[] {query, requestInfo.getFirstResult(), requestInfo.getBlockSize()});
         logQueryIfConfigured(query);
 
         // preparing the response
@@ -197,68 +190,17 @@ public class SolrBasedPsicquicService implements PsicquicService {
     private QueryResponse executeQuery(String query, RequestInfo requestInfo) throws SolrServerException, PsicquicServiceException, NotSupportedTypeException, PsicquicSolrException, ConverterException, IOException, XmlConversionException, IllegalAccessException {
         PsicquicSolrServer solrServer = getPsicquicSolrServer();
 
-        PsicquicSearchResults psicquicResults = solrServer.search(query, requestInfo.getFirstResult(), requestInfo.getBlockSize(), requestInfo.getResultType(), config.getQueryFilter());
-
-        if (psicquicResults == null){
-            return null;
-        }
-
-        // preparing the response
-        QueryResponse queryResponse = new QueryResponse();
-        ResultInfo resultInfo = new ResultInfo();
-        resultInfo.setBlockSize(requestInfo.getBlockSize());
-        resultInfo.setFirstResult(requestInfo.getFirstResult());
-        resultInfo.setResultType(requestInfo.getResultType());
-        // convert safely long to int using Google Guava's Ints
-        try{
-            resultInfo.setTotalResults(Ints.checkedCast(psicquicResults.getNumberResults()));
-        }
-        catch (IllegalArgumentException e){
-            throw new PsicquicServiceException("Impossible to retrieve the number of results from SOLR", e);
-        }
-
-        queryResponse.setResultInfo(resultInfo);
-
-        ResultSet resultSet = createResultSet(query, psicquicResults, requestInfo);
-        queryResponse.setResultSet(resultSet);
-
-        return queryResponse;
-    }
-
-    protected ResultSet createResultSet(String query, PsicquicSearchResults psicquicSearchResults, RequestInfo requestInfo) throws NotSupportedTypeException, ConverterException, IOException, XmlConversionException, IllegalAccessException {
-        ResultSet resultSet = new ResultSet();
-
         String resultType = requestInfo.getResultType() != null ? requestInfo.getResultType() : PsicquicSolrServer.RETURN_TYPE_DEFAULT;
+        int maxResults = requestInfo.getBlockSize();
 
-        if (PsicquicSolrServer.RETURN_TYPE_MITAB25.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB26.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB27.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI TAB");
-            InputStream mitabStream = psicquicSearchResults.getMitab();
-
-            if (mitabStream != null){
-                String mitab = IOUtils.toString(psicquicSearchResults.getMitab());
-
-                resultSet.setMitab(mitab);
-            }
-        } else if (PsicquicSolrServer.RETURN_TYPE_XML25.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI XML");
-
-            EntrySet jEntrySet = null;
-            try {
-                jEntrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicSearchResults, query, requestInfo.getBlockSize());
-            } catch (PsimiTabException e) {
-                jEntrySet = new EntrySet();
-                logger.error("Impossible to convert to xml", e);
-            }
-            resultSet.setEntrySet(jEntrySet);
-
-        } else if (PsicquicSolrServer.RETURN_TYPE_COUNT.equals(resultType)) {
-            if (logger.isDebugEnabled()) logger.debug("Count query");
-            // nothing to be done here
-        } else {
-            throw new NotSupportedTypeException("Not supported return type: "+resultType+" - Supported types are: "+SolrBasedPsicquicService.SUPPORTED_SOAP_RETURN_TYPES);
+        // in case of xml, we reduce the max number of results if necessary
+        if (resultType.equals(PsicquicSolrServer.RETURN_TYPE_XML25)){
+             maxResults = Math.min(maxResults, BLOCKSIZE_MAX);
         }
 
-        return resultSet;
+        StreamingQueryResponse psicquicStreaming = new StreamingQueryResponse(solrServer, query, requestInfo.getFirstResult(), maxResults, resultType, new String[]{config.getQueryFilter()});
+
+        return psicquicStreaming.executeStreamingQuery(requestInfo);
     }
 
     public String getVersion() {

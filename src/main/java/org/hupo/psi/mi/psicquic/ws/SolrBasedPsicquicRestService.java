@@ -83,6 +83,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final String RETURN_TYPE_RDF_TURTLE = "rdf-turtle";
     public static final String RETURN_TYPE_COUNT = "count";
     protected static final int MAX_XGMML_INTERACTIONS = 5000;
+    protected static final int MAX_INTERACTIONS_PER_QUERY = 500;
 
     @Autowired
     protected PsicquicConfig config;
