@@ -33,6 +33,7 @@ import java.util.List;
  */
 
 public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService {
+    public static final String RETURN_TYPE_MITAB25_BIN = "tab25-bin";
 
     public static final List<String> SUPPORTED_REST_RETURN_TYPES = Arrays.asList(
             RETURN_TYPE_XML25,
@@ -43,6 +44,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
             RETURN_TYPE_RDF_XML_ABBREV,
             RETURN_TYPE_RDF_N3,
             RETURN_TYPE_RDF_TURTLE,
+            RETURN_TYPE_MITAB25_BIN,
             RETURN_TYPE_COUNT);
 
     public SolrBasedPsicquicRestService12() {
@@ -92,7 +94,7 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 PsicquicSearchResults psicquicResults = null;
                 EntrySet entrySet = null;
                 try {
-                    psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
+                    psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX), PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
                     entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
                 } catch (PsicquicSolrException e) {
                     throw new PsicquicServiceException("Problem executing the query " + query, e);
@@ -111,12 +113,12 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
                 return entrySet;
             } else if ((format.toLowerCase().startsWith("rdf") && format.length() > 5) || format.toLowerCase().startsWith("biopax")
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
-                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
+                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX), PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
 
                 InputStream rdf = psicquicResults.createRDFOrBiopax(format);
                 String mediaType = (format.contains("xml") || format.toLowerCase().startsWith("biopax"))? MediaType.APPLICATION_XML : MediaType.TEXT_PLAIN;
 
-                return prepareResponse(Response.status(200).type(mediaType), rdf, psicquicResults.getNumberResults(), isCompressed).build();
+                return prepareResponse(Response.status(200).type(mediaType), rdf, psicquicResults.getNumberResults()).build();
 
             } else {
                 long count = 0;
@@ -141,19 +143,19 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
 
                     String name = fixedQuery.substring(0, Math.min(10, fixedQuery.length())) + ".xgmml";
 
-                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count, isCompressed);
+                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count);
 
                     Response resp = prepareResponse(Response.status(200).type("application/xgmml").header("Content-Disposition", "attachment; filename="+name),
-                            xgmml, count, isCompressed)
+                            xgmml, count)
                             .build();
 
                     return resp;
                 } else if (RETURN_TYPE_MITAB25.equalsIgnoreCase(format) || format == null) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, isCompressed);
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
-                            psicquicResults.getNumberResults(), isCompressed).build();
+                            psicquicResults.getNumberResults()).build();
                 } else {
                     return formatNotSupportedResponse(format);
                 }

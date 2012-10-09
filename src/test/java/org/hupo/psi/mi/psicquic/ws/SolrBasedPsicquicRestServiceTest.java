@@ -29,10 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
 
 /**
  * @author Bruno Aranda (baranda@ebi.ac.uk)
@@ -163,14 +161,14 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_count() throws Exception {
-        Long response = (Long) service.getByQuery("pmethod:\"western blot\"", "count", "0", "200", "n");
+        Long response = (Long) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "count", "0", "200", "n");
 
         Assert.assertEquals(new Long(2), response);
     }
 
     @Test
     public void testGetByQuery_tab25() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "tab25", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab25", "0", "200", "n");
 
         PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
 
@@ -182,7 +180,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_tab26() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "tab26", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab26", "0", "200", "n");
 
         PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
 
@@ -194,7 +192,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_tab27() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "tab27", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab27", "0", "200", "n");
 
         PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
 
@@ -206,7 +204,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_xml25() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "xml25", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "xml25", "0", "200", "n");
 
         psidev.psi.mi.xml254.jaxb.EntrySet entrySet = (psidev.psi.mi.xml254.jaxb.EntrySet) response.getEntity();
 
@@ -216,7 +214,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_xgmml() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "xgmml", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "xgmml", "0", "200", "n");
 
         XgmmlStreamingOutput pso = (XgmmlStreamingOutput) response.getEntity();
 
@@ -225,19 +223,19 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_biopax() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "biopax", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax", "0", "200", "n");
 
         InputStream pso = (InputStream) response.getEntity();
 
         Assert.assertNotNull(pso);
 
-        ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "biopax-L2", "0", "200", "n");
+        ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax-L2", "0", "200", "n");
 
         InputStream pso2 = (InputStream) response2.getEntity();
 
         Assert.assertNotNull(pso2);
 
-        ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "biopax-L3", "0", "200", "n");
+        ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax-L3", "0", "200", "n");
 
         InputStream pso3 = (InputStream) response3.getEntity();
 
@@ -246,113 +244,35 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_rdf() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "rdf", "0", "200", "n");
+        ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf", "0", "200", "n");
 
         String pso = (String) response.getEntity();
 
         Assert.assertNotNull(pso);
         Assert.assertEquals("Format not supported: rdf", pso);
 
-        ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "rdf-xml", "0", "200", "n");
+        ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-xml", "0", "200", "n");
 
         InputStream pso2 = (InputStream) response2.getEntity();
 
         Assert.assertNotNull(pso2);
 
-        ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "rdf-xml-abbrev", "0", "200", "n");
+        ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-xml-abbrev", "0", "200", "n");
 
         InputStream pso3 = (InputStream) response3.getEntity();
 
         Assert.assertNotNull(pso3);
 
-        ResponseImpl response4 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "rdf-n3", "0", "200", "n");
+        ResponseImpl response4 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-n3", "0", "200", "n");
 
         InputStream pso4 = (InputStream) response4.getEntity();
 
         Assert.assertNotNull(pso4);
 
-        ResponseImpl response5 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\"", "rdf-turtle", "0", "200", "n");
+        ResponseImpl response5 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-turtle", "0", "200", "n");
 
         InputStream pso5 = (InputStream) response5.getEntity();
 
         Assert.assertNotNull(pso5);
-    }
-    
-    @Test
-    public void testGetByQuery_tab25_bin() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("EBI-5630468", "tab25-bin", "0", "200", "n");
-
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        pso.write(baos);
-
-        // gunzip the output
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        GZIPInputStream gzipInputStream = new GZIPInputStream(bais);
-
-        ByteArrayOutputStream mitabOut = new ByteArrayOutputStream();
-
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = gzipInputStream.read(buf)) > 0)
-            mitabOut.write(buf, 0, len);
-
-        gzipInputStream.close();
-        mitabOut.close();
-
-        Assert.assertEquals(1, mitabOut.toString().split("\n").length);
-    }
-
-    @Test
-    public void testGetByQuery_tab26_bin() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("EBI-5630468", "tab26-bin", "0", "200", "n");
-
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        pso.write(baos);
-
-        // gunzip the output
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        GZIPInputStream gzipInputStream = new GZIPInputStream(bais);
-
-        ByteArrayOutputStream mitabOut = new ByteArrayOutputStream();
-
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = gzipInputStream.read(buf)) > 0)
-            mitabOut.write(buf, 0, len);
-
-        gzipInputStream.close();
-        mitabOut.close();
-
-        Assert.assertEquals(1, mitabOut.toString().split("\n").length);
-    }
-
-    @Test
-    public void testGetByQuery_tab27_bin() throws Exception {
-        ResponseImpl response = (ResponseImpl) service.getByQuery("EBI-5630468", "tab27-bin", "0", "200", "n");
-
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        pso.write(baos);
-
-        // gunzip the output
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        GZIPInputStream gzipInputStream = new GZIPInputStream(bais);
-
-        ByteArrayOutputStream mitabOut = new ByteArrayOutputStream();
-
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = gzipInputStream.read(buf)) > 0)
-            mitabOut.write(buf, 0, len);
-
-        gzipInputStream.close();
-        mitabOut.close();
-
-        Assert.assertEquals(1, mitabOut.toString().split("\n").length);
     }
 }

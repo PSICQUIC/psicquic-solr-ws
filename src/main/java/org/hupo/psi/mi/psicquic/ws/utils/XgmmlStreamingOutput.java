@@ -1,5 +1,6 @@
 package org.hupo.psi.mi.psicquic.ws.utils;
 
+import com.google.common.primitives.Ints;
 import org.hupo.psi.calimocho.tab.util.MitabDocumentDefinitionFactory;
 import org.hupo.psi.calimocho.xgmml.XgmmlStreamingGrapBuilder;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
@@ -12,7 +13,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Streaming output for XGMML
@@ -30,36 +30,19 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
         this.totalResults = total;
     }
 
-    public XgmmlStreamingOutput(PsicquicSolrServer psicquicService, String query, int first, int maxRows, String returnType, String[] queryFilter, int total, boolean gzip) {
-        super(psicquicService, query, first, maxRows, returnType, queryFilter, gzip);
-        this.totalResults = total;
-    }
-
     @Override
     public void write(OutputStream outputStream) throws IOException, WebApplicationException {
 
-        OutputStream os;
-
-        if (isGzip()) {
-            os = new GZIPOutputStream(outputStream);
-        } else {
-            os = outputStream;
-        }
-
-        int max = first + this.maxRows;
-        int blockSize = Math.min(SolrBasedPsicquicService.BLOCKSIZE_MAX, max);
+        int blockSize = Math.min(SolrBasedPsicquicService.BLOCKSIZE_MAX, maxRows);
         int firstResult = first;
 
         XgmmlStreamingGrapBuilder graphBuilder = null;
         try {
             graphBuilder = new XgmmlStreamingGrapBuilder("PSICQUIC", "Generated from MITAB 2.5", "http://psicquic.googlecode.com");
 
-            graphBuilder.open(os, totalResults);
+            graphBuilder.open(outputStream, totalResults);
 
             do {
-                if (totalResults > 0 && max < firstResult+blockSize) {
-                    blockSize = max - firstResult;
-                }
 
                 try {
                     PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, blockSize, returnType, queryFilters);
@@ -74,15 +57,15 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
                         mitabStream.close();
                     }
 
-                    totalResults = (int) results.getNumberResults();
+                    totalResults = Ints.checkedCast(results.getNumberResults());
 
-                    firstResult = firstResult + blockSize;
+                    firstResult += blockSize;
 
                 } catch (Exception e) {
                     throw new WebApplicationException(e);
                 }
 
-            } while (firstResult < totalResults && firstResult < max);
+            } while (firstResult < totalResults);
         } catch (JAXBException e) {
             throw new WebApplicationException(e);
         } catch (XMLStreamException e) {

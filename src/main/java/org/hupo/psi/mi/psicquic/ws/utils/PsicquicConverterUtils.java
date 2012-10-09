@@ -63,34 +63,6 @@ public class PsicquicConverterUtils {
         return jEntrySet;
     }
 
-    public static EntrySet extractJaxbEntrySetFromPsicquicResults(PsicquicSearchResults psicquicSearchResults, String query, int blockSize) throws ConverterException, IOException, XmlConversionException, IllegalAccessException, PsimiTabException {
-        // get the entryset from the results and converts to jaxb
-        psidev.psi.mi.xml.model.EntrySet psiEntrySet = psicquicSearchResults.createEntrySet();
-        EntrySetConverter entryConverter = new EntrySetConverter();
-        entryConverter.setDAOFactory(new InMemoryDAOFactory());
-
-        EntrySet jEntrySet = entryConverter.toJaxb(psiEntrySet);
-
-        // add some annotations
-        if (!jEntrySet.getEntries().isEmpty()) {
-            AttributeList attrList = new AttributeList();
-
-            Entry entry = jEntrySet.getEntries().iterator().next();
-
-            Attribute attr = new Attribute();
-            attr.setValue("Data retrieved using the PSICQUIC service. Query: "+query);
-            attrList.getAttributes().add(attr);
-
-            Attribute attr2 = new Attribute();
-            attr2.setValue("Total results found: "+psicquicSearchResults.getNumberResults());
-            attrList.getAttributes().add(attr2);
-
-            entry.setAttributeList(attrList);
-        }
-
-        return jEntrySet;
-    }
-
     public static EntrySet createEntrySetFromInputStream(String query, long numberResults, StringWriter mitabWriter, int blockSize, int maxSize) throws PsimiTabException, IOException, XmlConversionException, IllegalAccessException, ConverterException{
         psidev.psi.mi.xml.model.EntrySet psiEntrySet;
         PsimiTabReader mitabReader = new PsimiTabReader();

@@ -71,6 +71,8 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
     protected PsicquicSolrServer psicquicSolrServer;
 
+    public static final String RETURN_TYPE_MITAB25_BIN = "tab25-bin";
+
     public PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
             HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
@@ -136,7 +138,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             PsicquicSearchResults psicquicResults = null;
             EntrySet entrySet = null;
             try {
-                psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
+                psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX), PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
                 entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
             } catch (PsicquicSolrException e) {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
@@ -167,7 +169,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             }
 
             return psicquicResults.getNumberResults();
-        } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN).equals(format)) {
+        } else if (strippedMime(RETURN_TYPE_MITAB25_BIN).equals(format)) {
             PsicquicSearchResults psicquicResults = null;
             try {
                 psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, config.getQueryFilter());
@@ -211,7 +213,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
     public Object getSupportedFormats() throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         List<String> formats = new ArrayList<String>(SolrBasedPsicquicService.SUPPORTED_SOAP_RETURN_TYPES.size()+1);
-        formats.add(strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25_BIN));
+        formats.add(strippedMime(RETURN_TYPE_MITAB25_BIN));
 
         for (String mime : SolrBasedPsicquicService.SUPPORTED_SOAP_RETURN_TYPES) {
             formats.add(strippedMime(mime));
