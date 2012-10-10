@@ -82,7 +82,7 @@ public class StreamingQueryResponse {
                 throw new WebApplicationException(e);
             }
 
-        } while (firstResult < totalResults);
+        } while (firstResult < totalResults  && firstResult < maxRows);
 
         // preparing the response
         QueryResponse queryResponse = new QueryResponse();
