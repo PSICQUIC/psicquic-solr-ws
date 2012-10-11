@@ -63,7 +63,7 @@ public class PsicquicConverterUtils {
         return jEntrySet;
     }
 
-    public static EntrySet createEntrySetFromInputStream(String query, long numberResults, StringWriter mitabWriter, int blockSize, int maxSize) throws PsimiTabException, IOException, XmlConversionException, IllegalAccessException, ConverterException{
+    public static EntrySet createEntrySetFromInputStream(String query, long numberResults, StringWriter mitabWriter) throws PsimiTabException, IOException, XmlConversionException, IllegalAccessException, ConverterException{
         psidev.psi.mi.xml.model.EntrySet psiEntrySet;
         PsimiTabReader mitabReader = new PsimiTabReader();
 
@@ -93,15 +93,6 @@ public class PsicquicConverterUtils {
             Attribute attr2 = new Attribute();
             attr2.setValue("Total results found: "+numberResults);
             attrList.getAttributes().add(attr2);
-
-            // add warning if the batch size requested is higher than the maximum allowed
-            if (blockSize > maxSize && maxSize < numberResults) {
-                Attribute attrWarning = new Attribute();
-                attrWarning.setValue("Warning: The requested block size (" + blockSize + ") was higher than the maximum allowed (" + maxSize + ") by PSICQUIC the service. " +
-                        maxSize + " results were returned from a total found of "+numberResults);
-                attrList.getAttributes().add(attrWarning);
-
-            }
 
             entry.setAttributeList(attrList);
         }

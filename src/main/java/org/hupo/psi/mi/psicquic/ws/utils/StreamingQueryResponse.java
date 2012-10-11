@@ -117,7 +117,7 @@ public class StreamingQueryResponse {
 
             EntrySet jEntrySet = null;
             try {
-                jEntrySet = PsicquicConverterUtils.createEntrySetFromInputStream(query, totalResults, results, requestInfo.getBlockSize(), SolrBasedPsicquicService.BLOCKSIZE_MAX);
+                jEntrySet = PsicquicConverterUtils.createEntrySetFromInputStream(query, totalResults, results);
             } catch (PsimiTabException e) {
                 jEntrySet = new EntrySet();
                 logger.error("Impossible to convert to xml", e);

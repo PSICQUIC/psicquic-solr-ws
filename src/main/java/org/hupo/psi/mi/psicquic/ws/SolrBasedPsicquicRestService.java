@@ -167,8 +167,20 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
         try {
             if (RETURN_TYPE_XML25.equalsIgnoreCase(format)) {
-                // Maximum of 500 results to be exported in XML
-                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX), PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
+
+                // Maximum of 500 results to be exported in XML otherwise exception
+                if (maxResults > SolrBasedPsicquicService.BLOCKSIZE_MAX){
+                    // check that total number of results is less than 500, otherwise throw an Exception
+                    PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, new String[]{config.getQueryFilter()});
+
+                    long total = results.getNumberResults();
+                    // check that remaining number of results is less than 500. If not, throw an exception
+                    if (total - firstResult > SolrBasedPsicquicService.BLOCKSIZE_MAX){
+                        return Response.status(400).type(MediaType.TEXT_PLAIN).entity("Too many results to return in XML. Please use a more specific search or reduce the maxResults parameter to 500 and use pagination in your query.").build();
+                    }
+                }
+
+                PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_XML25, config.getQueryFilter());
 
                 final EntrySet entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
                 long count = psicquicResults.getNumberResults();
@@ -176,6 +188,17 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 return prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML), entrySet, count).build();
             } else if ((format.toLowerCase().startsWith("rdf") && format.length() > 5) || format.toLowerCase().startsWith("biopax")
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
+                // Maximum of 500 results to be exported in RDF or Biopax otherwise exception
+                if (maxResults > SolrBasedPsicquicService.BLOCKSIZE_MAX){
+                    // check that total number of results is less than 500, otherwise throw an Exception
+                    PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, new String[]{config.getQueryFilter()});
+
+                    long total = results.getNumberResults();
+                    // check that remaining number of results is less than 500. If not, throw an exception
+                    if (total - firstResult > SolrBasedPsicquicService.BLOCKSIZE_MAX){
+                        return Response.status(400).type(MediaType.TEXT_PLAIN).entity("Too many results to return in "+format+". Please use a more specific search or reduce the maxResults parameter to 500 and use pagination in your query.").build();
+                    }
+                }
                 // Maximum of 500 results to be exported in RDF or biopax
                 PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, Math.min(maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX), PsicquicSolrServer.RETURN_TYPE_MITAB27, config.getQueryFilter());
 

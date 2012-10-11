@@ -28,6 +28,7 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
+import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
@@ -193,9 +194,20 @@ public class SolrBasedPsicquicService implements PsicquicService {
         String resultType = requestInfo.getResultType() != null ? requestInfo.getResultType() : PsicquicSolrServer.RETURN_TYPE_DEFAULT;
         int maxResults = requestInfo.getBlockSize();
 
-        // in case of xml, we reduce the max number of results if necessary
-        if (resultType.equals(PsicquicSolrServer.RETURN_TYPE_XML25)){
-             maxResults = Math.min(maxResults, BLOCKSIZE_MAX);
+        // in case of xml, we cannot give more than 500 results
+        if (resultType.equals(PsicquicSolrServer.RETURN_TYPE_XML25) && maxResults > BLOCKSIZE_MAX){
+
+            // check that total number of results is less than 500, otherwise throw an Exception
+            PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, new String[]{config.getQueryFilter()});
+
+            long total = results.getNumberResults();
+            // check that remaining number of results is less than 500. If not, throw an exception
+            if (total - requestInfo.getFirstResult() > BLOCKSIZE_MAX){
+                PsicquicFault fault = new PsicquicFault();
+                fault.setCode(400);
+                fault.setMessage("Too many results to export in one single XML Entry.");
+                throw new PsicquicServiceException("Too many results to return in XML. Please use a more specific search or reduce the RequestInfo.blockSize to 500 and use pagination.", fault);
+            }
         }
 
         StreamingQueryResponse psicquicStreaming = new StreamingQueryResponse(solrServer, query, requestInfo.getFirstResult(), maxResults, resultType, new String[]{config.getQueryFilter()});

@@ -269,6 +269,20 @@ public class SolrBasedPsicquicServiceTest {
     public void testGetByQueryXml() throws Exception {
         RequestInfo info = new RequestInfo();
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
+        info.setBlockSize(500);
+
+        final QueryResponse response = service.getByQuery("direct interaction", info);
+
+        Assert.assertEquals(1, response.getResultInfo().getTotalResults());
+        Assert.assertNull(response.getResultSet().getMitab());
+        Assert.assertNotNull(response.getResultSet().getEntrySet());
+        Assert.assertEquals(1, response.getResultSet().getEntrySet().getEntries().iterator().next().getInteractionList().getInteractions().size());
+    }
+
+    @Test
+    public void testGetByQueryXml_TooManyResultsButTotalLessThan500() throws Exception {
+        RequestInfo info = new RequestInfo();
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
         info.setBlockSize(1000);
 
         final QueryResponse response = service.getByQuery("direct interaction", info);
