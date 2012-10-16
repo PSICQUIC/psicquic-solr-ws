@@ -68,7 +68,7 @@ public class PsicquicStreamingOutput implements StreamingOutput {
 
                 try {
                     if (mitabStream != null){
-                        IOUtils.copy(results.getMitab(), out);
+                        IOUtils.copy(mitabStream, out);
                     }
                 }
                 finally {

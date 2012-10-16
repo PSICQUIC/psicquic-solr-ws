@@ -67,7 +67,7 @@ public class StreamingQueryResponse {
                 try {
                     if (mitabStream != null){
 
-                        IOUtils.copy(results.getMitab(), mitabWriter);
+                        IOUtils.copy(mitabStream, mitabWriter);
                     }
                 }
                 finally {
