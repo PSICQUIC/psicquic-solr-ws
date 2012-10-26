@@ -1,5 +1,0 @@
-Manifest-Version: 1.0.0
-Bundle-ManifestVersion: 2
-Bundle-Name: psicquic-client
-Bundle-SymbolicName: psicquic-client
-Bundle-Version: 1.0.0
