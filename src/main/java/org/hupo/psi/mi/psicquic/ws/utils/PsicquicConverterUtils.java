@@ -42,15 +42,21 @@ public class PsicquicConverterUtils {
 
             Attribute attr = new Attribute();
             attr.setValue("Data retrieved using the PSICQUIC service. Query: "+query);
+            attr.setName("comment");
+            attr.setNameAc("MI:0612");
             attrList.getAttributes().add(attr);
 
             Attribute attr2 = new Attribute();
             attr2.setValue("Total results found: "+psicquicSearchResults.getNumberResults());
+            attr2.setName("comment");
+            attr2.setNameAc("MI:0612");
             attrList.getAttributes().add(attr2);
 
             // add warning if the batch size requested is higher than the maximum allowed
             if (blockSize > maxSize && maxSize < psicquicSearchResults.getNumberResults()) {
                 Attribute attrWarning = new Attribute();
+                attr.setName("caution");
+                attr.setNameAc("MI:0618");
                 attrWarning.setValue("Warning: The requested block size (" + blockSize + ") was higher than the maximum allowed (" + maxSize + ") by PSICQUIC the service. " +
                         maxSize + " results were returned from a total found of "+psicquicSearchResults.getNumberResults());
                 attrList.getAttributes().add(attrWarning);
@@ -88,10 +94,14 @@ public class PsicquicConverterUtils {
 
             Attribute attr = new Attribute();
             attr.setValue("Data retrieved using the PSICQUIC service. Query: "+query);
+            attr.setName("comment");
+            attr.setNameAc("MI:0612");
             attrList.getAttributes().add(attr);
 
             Attribute attr2 = new Attribute();
             attr2.setValue("Total results found: "+numberResults);
+            attr2.setName("comment");
+            attr2.setNameAc("MI:0612");
             attrList.getAttributes().add(attr2);
 
             entry.setAttributeList(attrList);

@@ -331,7 +331,7 @@
         <dependency>
             <groupId>org.hupo.psi.mi.psicquic</groupId>
             <artifactId>psicquic-solr</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.2.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>woodstox</groupId>
