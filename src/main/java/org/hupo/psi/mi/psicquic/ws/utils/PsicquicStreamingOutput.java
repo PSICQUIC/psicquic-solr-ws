@@ -72,7 +72,9 @@ public class PsicquicStreamingOutput implements StreamingOutput {
                     }
                 }
                 finally {
-                    mitabStream.close();
+                    if (mitabStream != null){
+                        mitabStream.close();
+                    }
                 }
 
                 out.flush();
