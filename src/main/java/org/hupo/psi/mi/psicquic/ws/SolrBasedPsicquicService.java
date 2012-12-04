@@ -47,7 +47,7 @@ import java.util.*;
 /**
  * This web service is based on a PSIMITAB lucene's directory to search and return the results.
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author Marine Dumousseau (marine@ebi.ac.uk)
  * @version $Id: IndexBasedPsicquicService.java 1048 2012-06-01 14:54:23Z mdumousseau@yahoo.com $
  */
 @Controller

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Controller;
 /**
  * Psicquic Initializing Bean.
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author MarineDumousseau (marine@ebi.ac.uk)
  * @version $Id: PsicquicInitializingBean.java 17796 2012-01-24 17:55:09Z brunoaranda $
  */
 @Controller
@@ -50,25 +50,6 @@ public class PsicquicInitializingBean implements InitializingBean {
             if (logger.isInfoEnabled()) logger.info("Using proxy port: "+config.getProxyPort());
             System.setProperty("http.proxyPort", config.getProxyPort());
         }
-
-        // stats directory
-        String statsDir = config.getStatsDirectory();
-
-        if (statsDir == null) {
-            statsDir = System.getProperty(STATS_DIR_ENV);
-
-            if (statsDir != null) {
-                logger.info("Usage statistics directory (found as system property): "+statsDir);
-            } else {
-                statsDir = System.getProperty("java.io.tmpdir");
-                logger.warn("Usage statistics directory not configured (system property '"+STATS_DIR_ENV+
-                            "' not found). Using default: "+statsDir);
-            }
-        } else {
-            logger.info("Usage statistics directory: "+statsDir);
-        }
-
-        config.setStatsDirectory(statsDir);
 
         // stats consumer
         logger.info("Initializing consumer");

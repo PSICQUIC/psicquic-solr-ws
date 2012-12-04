@@ -31,7 +31,7 @@ import java.io.PrintWriter;
 /**
  * Streams results in MITAB format.
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author Marine Dumousseau (marine@ebi.ac.uk)
  * @version $Id$
  */
 public class PsicquicStreamingOutput implements StreamingOutput {

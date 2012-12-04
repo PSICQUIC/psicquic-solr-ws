@@ -28,7 +28,7 @@ import javax.ws.rs.*;
  * current/search/query/species:human?format=xml25&firstResult=50&maxResults=100
  *
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author MarineDumousseau (marine@ebi.ac.uk)
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Path("/search")
