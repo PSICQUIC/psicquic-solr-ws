@@ -54,7 +54,7 @@ import java.util.Map;
 /**
  * This web service is based on a PSIMITAB SOLR index to search and return the results.
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author Marine Dumousseau (marine@ebi.ac.uk)
  * @version $Id: IntactPsicquicService.java 12873 2009-03-18 02:51:31Z baranda $
  */
 @Controller

@@ -19,7 +19,7 @@ import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.springframework.stereotype.Controller;
 
 /**
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author Marine Dumousseau (marine@ebi.ac.uk)
  * @version $Id$
  */
 @Controller

@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Place-holder for the configuration. Initialized by Spring.
  *
- * @author Bruno Aranda (baranda@ebi.ac.uk)
+ * @author Marine Dumousseau (marine@ebi.ac.uk)
  * @version $Id: PsicquicConfig.java 671 2011-10-28 15:50:38Z brunoaranda $
  */
 public class PsicquicConfig implements DisposableBean{
@@ -194,13 +194,5 @@ public class PsicquicConfig implements DisposableBean{
 
     public void setProxyPort(String proxyPort) {
         this.proxyPort = proxyPort;
-    }
-
-    public String getStatsDirectory() {
-        return statsDirectory;
-    }
-
-    public void setStatsDirectory(String statsDirectory) {
-        this.statsDirectory = statsDirectory;
     }
 }
