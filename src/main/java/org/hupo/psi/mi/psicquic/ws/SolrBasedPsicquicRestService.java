@@ -206,7 +206,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 InputStream rdf = psicquicResults.createRDFOrBiopax(format);
                 String mediaType = (format.contains("xml") || format.toLowerCase().startsWith("biopax"))? MediaType.APPLICATION_XML : MediaType.TEXT_PLAIN;
 
-                return prepareResponse(Response.status(200).type(mediaType), rdf, psicquicResults.getNumberResults()).build();
+                return prepareResponse(Response.status(200).type(mediaType), new GenericEntity<InputStream>(rdf){}, psicquicResults.getNumberResults()).build();
 
             } else {
                 long count = 0;

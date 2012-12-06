@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.ws.rs.core.GenericEntity;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
@@ -161,7 +162,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_count() throws Exception {
-        Long response = (Long) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "count", "0", "200", "n");
+        Long response = ((Long) ((ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "count", "0", "200", "n")).getEntity());
 
         Assert.assertEquals(new Long(2), response);
     }
@@ -216,7 +217,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_xgmml() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "xgmml", "0", "200", "n");
 
-        XgmmlStreamingOutput pso = (XgmmlStreamingOutput) response.getEntity();
+        XgmmlStreamingOutput pso = ((GenericEntity<XgmmlStreamingOutput>) response.getEntity()).getEntity();
 
         Assert.assertNotNull(pso);
     }
@@ -246,32 +247,32 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_rdf() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf", "0", "200", "n");
 
-        String pso = (String) response.getEntity();
+        String pso = ((GenericEntity<String>) response.getEntity()).getEntity();
 
         Assert.assertNotNull(pso);
         Assert.assertEquals("Format not supported: rdf", pso);
 
         ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-xml", "0", "200", "n");
 
-        InputStream pso2 = (InputStream) response2.getEntity();
+        InputStream pso2 = ((GenericEntity<InputStream>) response2.getEntity()).getEntity();
 
         Assert.assertNotNull(pso2);
 
         ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-xml-abbrev", "0", "200", "n");
 
-        InputStream pso3 = (InputStream) response3.getEntity();
+        InputStream pso3 = ((GenericEntity<InputStream>) response3.getEntity()).getEntity();
 
         Assert.assertNotNull(pso3);
 
         ResponseImpl response4 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-n3", "0", "200", "n");
 
-        InputStream pso4 = (InputStream) response4.getEntity();
+        InputStream pso4 = ((GenericEntity<InputStream>) response4.getEntity()).getEntity();
 
         Assert.assertNotNull(pso4);
 
         ResponseImpl response5 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf-turtle", "0", "200", "n");
 
-        InputStream pso5 = (InputStream) response5.getEntity();
+        InputStream pso5 = ((GenericEntity<InputStream>) response5.getEntity()).getEntity();
 
         Assert.assertNotNull(pso5);
     }
