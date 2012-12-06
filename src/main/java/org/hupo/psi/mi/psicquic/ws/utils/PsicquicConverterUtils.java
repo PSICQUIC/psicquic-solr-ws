@@ -5,6 +5,7 @@ import psidev.psi.mi.tab.PsimiTabException;
 import psidev.psi.mi.tab.PsimiTabReader;
 import psidev.psi.mi.tab.converter.tab2xml.Tab2Xml;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
+import psidev.psi.mi.xml.converter.ConverterContext;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml.converter.impl254.EntrySetConverter;
 import psidev.psi.mi.xml.dao.inMemory.InMemoryDAOFactory;
@@ -65,6 +66,9 @@ public class PsicquicConverterUtils {
 
             entry.setAttributeList(attrList);
         }
+
+        // close threadlocal if not done yet
+        ConverterContext.remove();
 
         return jEntrySet;
     }

@@ -42,6 +42,7 @@ import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -122,17 +123,17 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             logger.info("query: " + query);
         }
     }
-    public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults, compressed);
     }
 
-    public Object getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.interaction_id.toString()+":"+createQueryValue(interactionAc, db);
         return getByQuery(query, format, firstResult, maxResults, compressed);
     }
 
-    public Object getByQuery(String query, String format,
+    public Response getByQuery(String query, String format,
                                                  String firstResultStr,
                                                  String maxResultsStr,
                                                  String compressed) throws PsicquicServiceException,
@@ -213,7 +214,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    return psicquicResults.getNumberResults();
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getNumberResults(), psicquicResults.getNumberResults()).build();
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
@@ -234,7 +235,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                     XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()}, (int) count);
 
                     Response resp = prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML).header("Content-Disposition", "attachment; filename="+name),
-                            xgmml, count)
+                            new GenericEntity<XgmmlStreamingOutput>(xgmml){}, count)
                             .build();
 
                     return resp;
@@ -270,7 +271,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     }
 
     protected Response formatNotSupportedResponse(String format) {
-        return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported: "+format).build();
+        return Response.status(406).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<String>("Format not supported: " + format) {
+        }).build();
     }
 
     protected Response.ResponseBuilder prepareResponse(Response.ResponseBuilder responseBuilder, Object entity, long totalCount) throws IOException {
@@ -295,7 +297,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public Object getSupportedFormats() throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         return Response.status(200)
                 .type(MediaType.TEXT_PLAIN)
-                .entity(StringUtils.join(SUPPORTED_REST_RETURN_TYPES, "\n")).build();
+                .entity(new GenericEntity<String>(StringUtils.join(SUPPORTED_REST_RETURN_TYPES, "\n")) {
+                }).build();
     }
 
     public Object getProperty(String propertyName) {
@@ -304,15 +307,17 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         if (val == null) {
             return Response.status(404)
                 .type(MediaType.TEXT_PLAIN)
-                .entity("Property not found: "+propertyName).build();
+                .entity(new GenericEntity<String>("Property not found: " + propertyName) {
+                }).build();
         }
 
          return Response.status(200)
                 .type(MediaType.TEXT_PLAIN)
-                .entity(val).build();
+                .entity(new GenericEntity<String>(val) {
+                }).build();
     }
 
-    public Object getProperties() {
+    public Response getProperties() {
         StringBuilder sb = new StringBuilder(256);
 
         for (Map.Entry entry : config.getProperties().entrySet()) {
@@ -321,7 +326,8 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
         return Response.status(200)
                 .type(MediaType.TEXT_PLAIN)
-                .entity(sb.toString()).build();
+                .entity(new GenericEntity<String>(sb.toString()) {
+                }).build();
     }
 
     public String getVersion() {

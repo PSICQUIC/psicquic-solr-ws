@@ -48,6 +48,7 @@ import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -96,17 +97,17 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
         }
     }
 
-    public Object getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.id+":"+createQueryValue(interactorAc, db)+ " OR "+SolrFieldName.alias+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults);
     }
 
-    public Object getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.interaction_id+":"+createQueryValue(interactionAc, db);
         return getByQuery(query, format, firstResult, maxResults);
     }
 
-    public Object getByQuery(String query, String format,
+    public Response getByQuery(String query, String format,
                              String firstResultStr,
                              String maxResultsStr) throws PsicquicServiceException,
             NotSupportedMethodException,
@@ -157,7 +158,8 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             }
 
-            return entrySet;
+            return Response.status(200).type(MediaType.APPLICATION_XML).entity(new GenericEntity<EntrySet>(entrySet) {
+            }).build();
         } else if (SolrBasedPsicquicRestService.RETURN_TYPE_COUNT.equals(format)) {
             PsicquicSearchResults psicquicResults = null;
             try {
@@ -168,7 +170,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
                 throw new PsicquicServiceException("Problem executing the query " + query, e);
             }
 
-            return psicquicResults.getNumberResults();
+            return Response.status(200).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<Long>(psicquicResults.getNumberResults()){}).build();
         } else if (strippedMime(RETURN_TYPE_MITAB25_BIN).equals(format)) {
             PsicquicSearchResults psicquicResults = null;
             try {
@@ -182,10 +184,12 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
             InputStream mitab = psicquicResults.getMitab();
             if (mitab != null){
                 CompressedStreamingOutput streamingOutput = new CompressedStreamingOutput(mitab);
-                return Response.status(200).type("application/x-gzip").entity(streamingOutput).build();
+                return Response.status(200).type("application/x-gzip").entity(new GenericEntity<CompressedStreamingOutput>(streamingOutput) {
+                }).build();
             }
             else {
-                return Response.status(200).type("application/x-gzip").entity("").build();
+                return Response.status(200).type("application/x-gzip").entity(new GenericEntity<String>("") {
+                }).build();
             }
         } else if (strippedMime(SolrBasedPsicquicRestService.RETURN_TYPE_MITAB25).equals(format) || format == null) {
             PsicquicSearchResults psicquicResults = null;
@@ -199,19 +203,20 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
             InputStream mitab = psicquicResults.getMitab();
             if (mitab != null){
-                return Response.status(200).type(MediaType.TEXT_PLAIN).entity(mitab).build();
+                return Response.status(200).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<InputStream>(mitab){}).build();
             }
             else {
-                return Response.status(200).type(MediaType.TEXT_PLAIN).entity("").build();
+                return Response.status(200).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<String>(""){}).build();
             }
         } else {
-            return Response.status(406).type(MediaType.TEXT_PLAIN).entity("Format not supported").build();
+            return Response.status(406).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<String>("Format not supported") {
+            }).build();
         }
 
 
     }
 
-    public Object getSupportedFormats() throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getSupportedFormats() throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         List<String> formats = new ArrayList<String>(SolrBasedPsicquicService.SUPPORTED_SOAP_RETURN_TYPES.size()+1);
         formats.add(strippedMime(RETURN_TYPE_MITAB25_BIN));
 
@@ -221,7 +226,7 @@ public class SolrBasedPsicquicRestService10 implements PsicquicRestService10 {
 
         return Response.status(200)
                 .type(MediaType.TEXT_PLAIN)
-                .entity(StringUtils.join(formats, "\n")).build();
+                .entity(new GenericEntity<String>(StringUtils.join(formats, "\n")){}).build();
     }
 
     public String getVersion() {
