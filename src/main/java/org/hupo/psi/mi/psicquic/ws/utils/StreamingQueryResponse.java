@@ -61,7 +61,7 @@ public class StreamingQueryResponse {
         do {
 
             try {
-                PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, blockSize, returnType, queryFilters);
+                PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, Math.min(blockSize, maxRows+first-firstResult), returnType, queryFilters);
                 InputStream mitabStream = results.getMitab();
 
                 try {

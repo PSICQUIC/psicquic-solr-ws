@@ -45,12 +45,12 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
             do {
 
                 try {
-                    PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, blockSize, returnType, queryFilters);
+                    PsicquicSearchResults results = psicquicSolrServer.searchWithFilters(query, firstResult, Math.min(blockSize, maxRows+first-firstResult), returnType, queryFilters);
                     InputStream mitabStream = results.getMitab();
 
                     try {
                         if (mitabStream != null){
-                            graphBuilder.writeNodesAndEdgesFromMitab(mitabStream, MitabDocumentDefinitionFactory.mitab25());
+                            graphBuilder.writeNodesAndEdgesFromMitab(mitabStream, MitabDocumentDefinitionFactory.mitab27());
                         }
                     }
                     finally {

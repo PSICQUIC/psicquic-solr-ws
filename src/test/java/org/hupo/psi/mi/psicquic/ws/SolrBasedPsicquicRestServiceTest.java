@@ -226,19 +226,19 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_biopax() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax", "0", "200", "n");
 
-        InputStream pso = (InputStream) response.getEntity();
+        InputStream pso = ((GenericEntity<InputStream>) response.getEntity()).getEntity();
 
         Assert.assertNotNull(pso);
 
         ResponseImpl response2 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax-L2", "0", "200", "n");
 
-        InputStream pso2 = (InputStream) response2.getEntity();
+        InputStream pso2 = ((GenericEntity<InputStream>) response2.getEntity()).getEntity();
 
         Assert.assertNotNull(pso2);
 
         ResponseImpl response3 = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax-L3", "0", "200", "n");
 
-        InputStream pso3 = (InputStream) response3.getEntity();
+        InputStream pso3 = ((GenericEntity<InputStream>) response3.getEntity()).getEntity();
 
         Assert.assertNotNull(pso3);
     }
