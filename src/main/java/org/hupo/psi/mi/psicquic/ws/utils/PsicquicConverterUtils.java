@@ -111,6 +111,9 @@ public class PsicquicConverterUtils {
             entry.setAttributeList(attrList);
         }
 
+        // close threadlocal if not done yet
+        ConverterContext.remove();
+
         return jEntrySet;
     }
 
