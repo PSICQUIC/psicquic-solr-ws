@@ -2,6 +2,7 @@ package org.hupo.psi.mi.psicquic.ws.legacy;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
 import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
 import org.hupo.psi.mi.psicquic.PsicquicServiceException;
@@ -49,6 +50,15 @@ public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService
             RETURN_TYPE_COUNT);
 
     public SolrBasedPsicquicRestService12() {
+        if (psicquicSolrServer == null) {
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
+
+            solrServer.setConnectionTimeout(SolrBasedPsicquicService.connectionTimeOut);
+            solrServer.setSoTimeout(SolrBasedPsicquicService.soTimeOut);
+            solrServer.setAllowCompression(SolrBasedPsicquicService.allowCompression);
+
+            psicquicSolrServer = new PsicquicSolrServer(solrServer);
+        }
     }
 
     @Override

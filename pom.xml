@@ -16,7 +16,7 @@
     </scm>
 
     <properties>
-        <cxf.version>2.6.2</cxf.version>
+        <cxf.version>2.6.3</cxf.version>
         <spring.version>3.1.2.RELEASE</spring.version>
 
         <!-- configurable bits -->

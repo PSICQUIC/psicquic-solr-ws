@@ -90,7 +90,7 @@ public class PsicquicConfig implements DisposableBean{
         for (String prop : props) {
             String[] propTokens = prop.trim().split("=");
 
-            if (propTokens.length > 0) {
+            if (propTokens.length > 1) {
                 propMap.put(propTokens[0], propTokens[1]);
             } else {
                 propMap.put(prop, "");
