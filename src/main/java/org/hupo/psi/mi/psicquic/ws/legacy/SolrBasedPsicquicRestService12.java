@@ -11,9 +11,11 @@ import org.hupo.psi.mi.psicquic.model.PsicquicSolrException;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService;
 import org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicService;
+import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicConverterUtils;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
+import org.springframework.beans.factory.annotation.Autowired;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -36,6 +38,9 @@ import java.util.List;
 
 public class SolrBasedPsicquicRestService12 extends SolrBasedPsicquicRestService {
     public static final String RETURN_TYPE_MITAB25_BIN = "tab25-bin";
+
+    @Autowired
+    private PsicquicConfig config;
 
     public static final List<String> SUPPORTED_REST_RETURN_TYPES = Arrays.asList(
             RETURN_TYPE_XML25,

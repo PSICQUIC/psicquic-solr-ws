@@ -79,7 +79,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     protected static final int MAX_XGMML_INTERACTIONS = 5000;
 
     @Autowired
-    protected PsicquicConfig config;
+    private PsicquicConfig config;
 
     protected PsicquicSolrServer psicquicSolrServer;
 

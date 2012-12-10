@@ -28,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import psidev.psi.mi.xml254.jaxb.EntrySet;
 
 import javax.ws.rs.core.GenericEntity;
 import java.io.ByteArrayOutputStream;
@@ -80,7 +81,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // search for idA or idB
         ResponseImpl response = (ResponseImpl) service.getByInteractor("P07228", "uniprotkb", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
@@ -90,7 +91,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // search for altidA or altidB
         ResponseImpl response2 = (ResponseImpl) service.getByInteractor("EBI-5606437", "intact", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso2 = (PsicquicStreamingOutput) response2.getEntity();
+        PsicquicStreamingOutput pso2 = ((GenericEntity<PsicquicStreamingOutput>) response2.getEntity()).getEntity();
 
         ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
         pso2.write(baos2);
@@ -100,7 +101,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // search for aliasA or aliasB
         ResponseImpl response3 = (ResponseImpl) service.getByInteractor("RGD-receptor", "uniprotkb", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso3 = (PsicquicStreamingOutput) response3.getEntity();
+        PsicquicStreamingOutput pso3 = ((GenericEntity<PsicquicStreamingOutput>) response3.getEntity()).getEntity();
 
         ByteArrayOutputStream baos3 = new ByteArrayOutputStream();
         pso3.write(baos3);
@@ -110,7 +111,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // serch for db only
         ResponseImpl response4 = (ResponseImpl) service.getByInteractor(null, "uniprotkb", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso4 = (PsicquicStreamingOutput) response4.getEntity();
+        PsicquicStreamingOutput pso4 = ((GenericEntity<PsicquicStreamingOutput>) response4.getEntity()).getEntity();
 
         ByteArrayOutputStream baos4 = new ByteArrayOutputStream();
         pso4.write(baos4);
@@ -120,7 +121,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // serch for id only
         ResponseImpl response5 = (ResponseImpl) service.getByInteractor("RGD-receptor", null, "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso5 = (PsicquicStreamingOutput) response5.getEntity();
+        PsicquicStreamingOutput pso5 = ((GenericEntity<PsicquicStreamingOutput>) response5.getEntity()).getEntity();
 
         ByteArrayOutputStream baos5 = new ByteArrayOutputStream();
         pso5.write(baos5);
@@ -132,7 +133,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByInteraction() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByInteraction("EBI-5630468", null, "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
@@ -142,7 +143,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // search for db only
         ResponseImpl response2 = (ResponseImpl) service.getByInteraction(null, "intact", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso2 = (PsicquicStreamingOutput) response2.getEntity();
+        PsicquicStreamingOutput pso2 = ((GenericEntity<PsicquicStreamingOutput>) response2.getEntity()).getEntity();
 
         ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
         pso2.write(baos2);
@@ -152,7 +153,7 @@ public class SolrBasedPsicquicRestServiceTest {
         // search for db:id only
         ResponseImpl response3 = (ResponseImpl) service.getByInteraction("EBI-5630468", "intact", "tab25", "0", "50", "n");
 
-        PsicquicStreamingOutput pso3 = (PsicquicStreamingOutput) response3.getEntity();
+        PsicquicStreamingOutput pso3 = ((GenericEntity<PsicquicStreamingOutput>) response3.getEntity()).getEntity();
 
         ByteArrayOutputStream baos3 = new ByteArrayOutputStream();
         pso3.write(baos3);
@@ -162,7 +163,7 @@ public class SolrBasedPsicquicRestServiceTest {
 
     @Test
     public void testGetByQuery_count() throws Exception {
-        Long response = ((Long) ((ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "count", "0", "200", "n")).getEntity());
+        Long response = ((GenericEntity<Long>) ((ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "count", "0", "200", "n")).getEntity()).getEntity();
 
         Assert.assertEquals(new Long(2), response);
     }
@@ -171,7 +172,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_tab25() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab25", "0", "200", "n");
 
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
@@ -183,7 +184,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_tab26() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab26", "0", "200", "n");
 
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
@@ -195,7 +196,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_tab27() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "tab27", "0", "200", "n");
 
-        PsicquicStreamingOutput pso = (PsicquicStreamingOutput) response.getEntity();
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pso.write(baos);
@@ -207,7 +208,7 @@ public class SolrBasedPsicquicRestServiceTest {
     public void testGetByQuery_xml25() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "xml25", "0", "200", "n");
 
-        psidev.psi.mi.xml254.jaxb.EntrySet entrySet = (psidev.psi.mi.xml254.jaxb.EntrySet) response.getEntity();
+        psidev.psi.mi.xml254.jaxb.EntrySet entrySet = ((GenericEntity<EntrySet>) response.getEntity()).getEntity();
 
         Assert.assertNotNull(entrySet);
         Assert.assertEquals(2, entrySet.getEntries().iterator().next().getInteractionList().getInteractions().size());
