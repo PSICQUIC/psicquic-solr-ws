@@ -349,7 +349,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         return sb.toString();
     }
 
-    private HttpClient createHttpClient() {
+    protected HttpClient createHttpClient() {
         SchemeRegistry schemeRegistry = new SchemeRegistry();
         schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory
                 .getSocketFactory()));
