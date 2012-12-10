@@ -186,7 +186,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 final EntrySet entrySet = PsicquicConverterUtils.extractJaxbEntrySetFromPsicquicResults(psicquicResults, query, maxResults, SolrBasedPsicquicService.BLOCKSIZE_MAX);
                 long count = psicquicResults.getNumberResults();
 
-                return prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML), entrySet, count).build();
+                return prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML), new GenericEntity<EntrySet>(entrySet){}, count).build();
             } else if ((format.toLowerCase().startsWith("rdf") && format.length() > 5) || format.toLowerCase().startsWith("biopax")
                     || format.toLowerCase().startsWith("biopax-L3") || format.toLowerCase().startsWith("biopax-L2")) {
                 // Maximum of 500 results to be exported in RDF or Biopax otherwise exception
@@ -214,7 +214,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                 if (RETURN_TYPE_COUNT.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicResults.getNumberResults(), psicquicResults.getNumberResults()).build();
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<Long>(psicquicResults.getNumberResults()){}, psicquicResults.getNumberResults()).build();
                 } else if (RETURN_TYPE_XGMML.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
@@ -243,21 +243,21 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
                            psicquicResults.getNumberResults()).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, new String[]{config.getQueryFilter()});
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
                             psicquicResults.getNumberResults()).build();
                 }
                 else if (RETURN_TYPE_MITAB27.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()});
-                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), psicquicStreaming,
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
                             psicquicResults.getNumberResults()).build();
                 }else {
                     return formatNotSupportedResponse(format);
