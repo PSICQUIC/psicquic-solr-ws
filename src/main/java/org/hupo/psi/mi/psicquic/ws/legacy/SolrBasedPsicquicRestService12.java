@@ -27,6 +27,8 @@ import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
@@ -50,7 +52,7 @@ import java.util.Map;
  * @version $Id$
  * @since <pre>15/06/12</pre>
  */
-
+@Controller
 public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
     public static final String RETURN_TYPE_MITAB25_BIN = "tab25-bin";
 
