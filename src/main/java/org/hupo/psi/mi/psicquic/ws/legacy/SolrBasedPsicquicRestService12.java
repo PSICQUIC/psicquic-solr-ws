@@ -90,18 +90,6 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
             RETURN_TYPE_MITAB25_BIN,
             RETURN_TYPE_COUNT);
 
-    public SolrBasedPsicquicRestService12() {
-        if (psicquicSolrServer == null) {
-            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
-
-            solrServer.setConnectionTimeout(SolrBasedPsicquicService.connectionTimeOut);
-            solrServer.setSoTimeout(SolrBasedPsicquicService.soTimeOut);
-            solrServer.setAllowCompression(SolrBasedPsicquicService.allowCompression);
-
-            psicquicSolrServer = new PsicquicSolrServer(solrServer);
-        }
-    }
-
     public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
         return getByQuery(query, format, firstResult, maxResults, compressed);
@@ -134,6 +122,8 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
                              String compressed) throws PsicquicServiceException,
             NotSupportedMethodException,
             NotSupportedTypeException {
+
+        PsicquicSolrServer psicquicSolrServer = getPsicquicSolrServer();
 
         boolean isCompressed = ("y".equalsIgnoreCase(compressed) || "true".equalsIgnoreCase(compressed));
 
@@ -218,7 +208,7 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
 
                     String name = fixedQuery.substring(0, Math.min(10, fixedQuery.length())) + ".xgmml";
 
-                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(this.psicquicSolrServer, query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count);
+                    XgmmlStreamingOutput xgmml = new XgmmlStreamingOutput(psicquicSolrServer, query, firstResult, Math.min(maxResults, MAX_XGMML_INTERACTIONS), PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()}, (int) count);
 
                     Response resp = prepareResponse(Response.status(200).type(MediaType.APPLICATION_XML).header("Content-Disposition", "attachment; filename="+name),
                             new GenericEntity<XgmmlStreamingOutput>(xgmml){}, count)
@@ -337,5 +327,20 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
     }
     private boolean isValueSet(String value) {
         return value != null && !value.startsWith("$");
+    }
+
+    public PsicquicSolrServer getPsicquicSolrServer() {
+        if (psicquicSolrServer == null) {
+            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
+
+            solrServer.setConnectionTimeout(SolrBasedPsicquicService.connectionTimeOut);
+            solrServer.setSoTimeout(SolrBasedPsicquicService.soTimeOut);
+            solrServer.setAllowCompression(SolrBasedPsicquicService.allowCompression);
+
+            psicquicSolrServer = new PsicquicSolrServer(solrServer);
+        }
+
+        return psicquicSolrServer;
+
     }
 }

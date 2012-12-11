@@ -41,7 +41,7 @@ import java.io.InputStream;
  */
 public class SolrBasedPsicquicRestServiceTest {
 
-    private static SolrBasedPsicquicRestService12 service;
+    private static SolrBasedPsicquicRestService service;
 
     private static SolrJettyRunner solrJettyRunner;
 
@@ -65,7 +65,7 @@ public class SolrBasedPsicquicRestServiceTest {
         PsicquicConfig config = (PsicquicConfig)context.getBean("testPsicquicConfig");
         config.setSolrUrl(solrJettyRunner.getSolrUrl());
 
-	    service = (SolrBasedPsicquicRestService12) context.getBean("solrBasedPsicquicRestService12");
+	    service = (SolrBasedPsicquicRestService) context.getBean("solrBasedPsicquicRestService");
     }
 
     @After
