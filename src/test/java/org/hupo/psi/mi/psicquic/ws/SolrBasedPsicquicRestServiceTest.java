@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.indexing.batch.SolrMitabIndexer;
 import org.hupo.psi.mi.psicquic.model.server.SolrJettyRunner;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
+import org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService12;
 import org.hupo.psi.mi.psicquic.ws.utils.PsicquicStreamingOutput;
 import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.junit.After;
@@ -40,7 +41,7 @@ import java.io.InputStream;
  */
 public class SolrBasedPsicquicRestServiceTest {
 
-    private static PsicquicRestService service;
+    private static SolrBasedPsicquicRestService12 service;
 
     private static SolrJettyRunner solrJettyRunner;
 
@@ -64,7 +65,7 @@ public class SolrBasedPsicquicRestServiceTest {
         PsicquicConfig config = (PsicquicConfig)context.getBean("testPsicquicConfig");
         config.setSolrUrl(solrJettyRunner.getSolrUrl());
 
-	    service = (SolrBasedPsicquicRestService) context.getBean("solrBasedPsicquicRestService");
+	    service = (SolrBasedPsicquicRestService12) context.getBean("solrBasedPsicquicRestService12");
     }
 
     @After
