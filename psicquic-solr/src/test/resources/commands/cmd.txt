@@ -1,8 +1,0 @@
-## start-up server at port 9893
-nohup java -server -XX:+UseParallelGC -XX:+AggressiveOpts -XX:+DisableExplicitGC -Xms3G -Xmx4G -Djetty.port=1234 -Dsolr.solr.home=/Users/johannesgoll/software-engineering/eclipse-projects/psiquic2/psicquic-solr/src/main/resources/solr-home -jar start.jar &
-
-## load example XML
-java -Durl=http://localhost:1234/solr/update -jar post.jar /Users/johannesgoll/software-engineering/eclipse-projects/psiquic2/psicquic-solr/src/test/resources/samples/sampleFileConfidence.xml
-
-## luke 
-java -jar lukeall-3.4.0_1.jar
