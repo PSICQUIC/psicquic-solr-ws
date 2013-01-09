@@ -87,7 +87,7 @@ public class PsicquicStreamingOutput implements StreamingOutput {
                 throw new WebApplicationException(e);
             }
 
-        } while (firstResult < totalResults && firstResult < maxRows);
+        } while (firstResult < totalResults && firstResult < maxRows+first);
 
         out.close();
     }

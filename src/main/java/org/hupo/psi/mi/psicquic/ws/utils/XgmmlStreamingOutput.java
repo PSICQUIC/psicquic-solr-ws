@@ -65,7 +65,7 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
                     throw new WebApplicationException(e);
                 }
 
-            } while (firstResult < totalResults  && firstResult < maxRows);
+            } while (firstResult < totalResults  && firstResult < maxRows+first);
         } catch (JAXBException e) {
             throw new WebApplicationException(e);
         } catch (XMLStreamException e) {
