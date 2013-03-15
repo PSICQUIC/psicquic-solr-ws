@@ -54,7 +54,9 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
                         }
                     }
                     finally {
-                        mitabStream.close();
+                        if (mitabStream != null){
+                            mitabStream.close();
+                        }
                     }
 
                     totalResults = Ints.checkedCast(results.getNumberResults());
