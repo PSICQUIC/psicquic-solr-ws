@@ -32,6 +32,7 @@
     <bean name="mitabIndexerAndJettyRunner" class="org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner">
         <property name="workingDir" value="${solr.workdir}"/>
         <property name="port" value="${jetty.port}"/>
+        <property name="host" value="${solr.host}"/>
     </bean>
 
 </beans>

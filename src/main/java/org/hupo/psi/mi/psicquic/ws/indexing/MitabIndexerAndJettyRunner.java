@@ -27,6 +27,7 @@ public class MitabIndexerAndJettyRunner {
 
     private String workingDir = "target/solr";
     private int port;
+    private String host;
 
     public String getWorkingDir() {
         return workingDir;
@@ -44,6 +45,14 @@ public class MitabIndexerAndJettyRunner {
         this.port = port;
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
     public static void main(String [] args) throws JobInstanceAlreadyCompleteException, JobParametersInvalidException, NoSuchJobExecutionException, NoSuchJobException, JobRestartException, NoSuchJobInstanceException, JobExecutionAlreadyRunningException {
         // loads the spring context defining beans and jobs
         ApplicationContext context = new ClassPathXmlApplicationContext(
@@ -57,6 +66,7 @@ public class MitabIndexerAndJettyRunner {
 
             SolrJettyRunner solrJettyRunner = new SolrJettyRunner(new File(runner.getWorkingDir()));
             solrJettyRunner.setPort(runner.getPort());
+            solrJettyRunner.setHost(runner.getHost());
             solrJettyRunner.start();
 
             SolrMitabIndexer rm = (SolrMitabIndexer)

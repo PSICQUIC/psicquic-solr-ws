@@ -38,7 +38,7 @@ public class XgmmlStreamingOutput extends PsicquicStreamingOutput {
 
         XgmmlStreamingGrapBuilder graphBuilder = null;
         try {
-            graphBuilder = new XgmmlStreamingGrapBuilder("PSICQUIC", "Generated from MITAB 2.5", "http://psicquic.googlecode.com");
+            graphBuilder = new XgmmlStreamingGrapBuilder("PSICQUIC", "Generated from MITAB 2.7", "http://psicquic.googlecode.com");
 
             graphBuilder.open(outputStream, totalResults);
 

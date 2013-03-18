@@ -3,7 +3,7 @@
 
     <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
     <artifactId>psicquic-solr-ws</artifactId>
-    <version>1.3.8</version>
+    <version>1.3.9-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
@@ -23,13 +23,14 @@
 
         <!-- port of the webservice application -->
         <jetty.port>9090</jetty.port>
+        <solr.host>127.0.0.1</solr.host>
         <!-- location of the solr work directory (where we find solr-home and index and solr war file) -->
         <solr.workdir>.</solr.workdir>
         <!-- properties of the psicquic webservice -->
         <psicquic.properties />
         <!-- url to access solr -->
-        <solr.url>http://localhost:${jetty.port}/solr/</solr.url>
-        <solrUrl>http://localhost:${jetty.port}/solr/</solrUrl>
+        <solr.url>http://${solr.host}:${jetty.port}/solr/</solr.url>
+        <solrUrl>http://${solr.host}:${jetty.port}/solr/</solrUrl>
         <!-- psicquic filter query -->
         <psicquic.filter />
         <!-- file name where to log queries -->
@@ -163,9 +164,6 @@
                                 </connector>
                             </connectors>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <webAppConfig>
-                                <contextPath>/psicquic</contextPath>
-                            </webAppConfig>
                             <systemProperties>
                                 <systemProperty>
                                     <name>solr.solr.home</name>
@@ -176,6 +174,13 @@
                                 <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
                                     <war>${solr.workdir}/solr.war</war>
                                     <contextPath>/solr</contextPath>
+                                    <virtualHosts>
+                                        <virtualHost>127.0.0.1</virtualHost>
+                                    </virtualHosts>
+                                </contextHandler>
+                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
+                                    <war>${basedir}/target/${service.name}-psicquic-ws-${version}.war</war>
+                                    <contextPath>/psicquic</contextPath>
                                 </contextHandler>
                             </contextHandlers>
                             <stopPort />
@@ -331,7 +336,7 @@
         <dependency>
             <groupId>org.hupo.psi.mi.psicquic</groupId>
             <artifactId>psicquic-solr</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>woodstox</groupId>
