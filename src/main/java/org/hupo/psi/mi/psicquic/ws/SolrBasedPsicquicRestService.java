@@ -123,20 +123,19 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             logger.info("query: " + query);
         }
     }
-    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
-    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.interaction_id.toString()+":"+createQueryValue(interactionAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
     public Response getByQuery(String query, String format,
                                                  String firstResultStr,
-                                                 String maxResultsStr,
-                                                 String compressed) throws PsicquicServiceException,
+                                                 String maxResultsStr) throws PsicquicServiceException,
                                                                  NotSupportedMethodException,
                                                                  NotSupportedTypeException {
         if (query == null) throw new NullPointerException("Null query");
@@ -288,7 +287,6 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         responseBuilder.header("X-PSICQUIC-Impl", config.getImplementationName());
         responseBuilder.header("X-PSICQUIC-Impl-Version", config.getVersion());
         responseBuilder.header("X-PSICQUIC-Spec-Version", config.getRestSpecVersion());
-        responseBuilder.header("X-PSICQUIC-Supports-Compression", Boolean.TRUE);
         responseBuilder.header("X-PSICQUIC-Supports-Formats", StringUtils.join(SUPPORTED_REST_RETURN_TYPES, ", "));
 
         return responseBuilder;
