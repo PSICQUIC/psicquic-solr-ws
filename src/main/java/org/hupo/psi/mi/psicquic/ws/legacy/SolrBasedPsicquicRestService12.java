@@ -27,15 +27,12 @@ import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.tab.converter.tab2xml.XmlConversionException;
 import psidev.psi.mi.xml.converter.ConverterException;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -90,14 +87,14 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
             RETURN_TYPE_MITAB25_BIN,
             RETURN_TYPE_COUNT);
 
-    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
-    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.interaction_id.toString()+":"+createQueryValue(interactionAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
     private String createQueryValue(String interactorAc, String db) {
@@ -118,14 +115,11 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
     @Override
     public Response getByQuery(String query, String format,
                              String firstResultStr,
-                             String maxResultsStr,
-                             String compressed) throws PsicquicServiceException,
+                             String maxResultsStr) throws PsicquicServiceException,
             NotSupportedMethodException,
             NotSupportedTypeException {
 
         PsicquicSolrServer psicquicSolrServer = getPsicquicSolrServer();
-
-        boolean isCompressed = ("y".equalsIgnoreCase(compressed) || "true".equalsIgnoreCase(compressed));
 
         int firstResult;
         int maxResults;
@@ -151,7 +145,6 @@ public class SolrBasedPsicquicRestService12 implements PsicquicRestService {
         // if using mitab25-bin, set to mitab and compressed=y
         if (RETURN_TYPE_MITAB25_BIN.equalsIgnoreCase(format)) {
             format = RETURN_TYPE_MITAB25;
-            isCompressed = true;
         }
 
         try {
