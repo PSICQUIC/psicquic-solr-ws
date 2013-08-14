@@ -86,9 +86,9 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final List<String> SUPPORTED_REST_RETURN_TYPES = Arrays.asList(
             RETURN_TYPE_XML25,
             RETURN_TYPE_MITAB25,
-			RETURN_TYPE_MITAB26,
-			RETURN_TYPE_MITAB27,
-			RETURN_TYPE_BIOPAX,
+            RETURN_TYPE_MITAB26,
+            RETURN_TYPE_MITAB27,
+            RETURN_TYPE_BIOPAX,
             RETURN_TYPE_XGMML,
             RETURN_TYPE_RDF_XML,
             RETURN_TYPE_RDF_XML_ABBREV,
@@ -123,22 +123,21 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             logger.info("query: " + query);
         }
     }
-    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteractor(String interactorAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.identifier.toString()+":"+createQueryValue(interactorAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
-    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults, String compressed) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
+    public Response getByInteraction(String interactionAc, String db, String format, String firstResult, String maxResults) throws PsicquicServiceException, NotSupportedMethodException, NotSupportedTypeException {
         String query = SolrFieldName.interaction_id.toString()+":"+createQueryValue(interactionAc, db);
-        return getByQuery(query, format, firstResult, maxResults, compressed);
+        return getByQuery(query, format, firstResult, maxResults);
     }
 
     public Response getByQuery(String query, String format,
-                                                 String firstResultStr,
-                                                 String maxResultsStr,
-                                                 String compressed) throws PsicquicServiceException,
-                                                                 NotSupportedMethodException,
-                                                                 NotSupportedTypeException {
+                               String firstResultStr,
+                               String maxResultsStr) throws PsicquicServiceException,
+            NotSupportedMethodException,
+            NotSupportedTypeException {
         if (query == null) throw new NullPointerException("Null query");
 
         logQueryIfConfigured(query);
@@ -244,7 +243,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB25, new String[]{config.getQueryFilter()});
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
-                           psicquicResults.getNumberResults()).build();
+                            psicquicResults.getNumberResults()).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
                     PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
@@ -279,16 +278,15 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         responseBuilder.entity(entity);
 
         prepareHeaders(responseBuilder).header("X-PSICQUIC-Count", String.valueOf(totalCount));
-        
+
 
         return responseBuilder;
     }
-    
+
     public Response.ResponseBuilder prepareHeaders(Response.ResponseBuilder responseBuilder) {
         responseBuilder.header("X-PSICQUIC-Impl", config.getImplementationName());
         responseBuilder.header("X-PSICQUIC-Impl-Version", config.getVersion());
         responseBuilder.header("X-PSICQUIC-Spec-Version", config.getRestSpecVersion());
-        responseBuilder.header("X-PSICQUIC-Supports-Compression", Boolean.TRUE);
         responseBuilder.header("X-PSICQUIC-Supports-Formats", StringUtils.join(SUPPORTED_REST_RETURN_TYPES, ", "));
 
         return responseBuilder;
@@ -306,12 +304,12 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
 
         if (val == null) {
             return Response.status(404)
-                .type(MediaType.TEXT_PLAIN)
-                .entity(new GenericEntity<String>("Property not found: " + propertyName) {
-                }).build();
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(new GenericEntity<String>("Property not found: " + propertyName) {
+                    }).build();
         }
 
-         return Response.status(200)
+        return Response.status(200)
                 .type(MediaType.TEXT_PLAIN)
                 .entity(new GenericEntity<String>(val) {
                 }).build();
