@@ -584,6 +584,13 @@
             <version>2.5.0</version>
         </dependency>
 
+        <!-- add GZIP filter -->
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>6.1.26</version>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>junit</groupId>
