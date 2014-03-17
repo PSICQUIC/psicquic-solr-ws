@@ -77,7 +77,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
     public SolrBasedPsicquicService() {
     }
 
-    public PsicquicSolrServer getPsicquicSolrServer() {
+    public synchronized PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
             HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
 

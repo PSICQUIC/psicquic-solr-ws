@@ -101,7 +101,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public SolrBasedPsicquicRestService() {
     }
 
-    public PsicquicSolrServer getPsicquicSolrServer() {
+    public synchronized PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
             HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
 
