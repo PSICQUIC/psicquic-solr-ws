@@ -111,6 +111,13 @@
                     <stopKey />
                     <stopPort />
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                        <version>2.5</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
@@ -235,6 +242,13 @@
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner</argument>
                             </arguments>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>javax.servlet</groupId>
+                                <artifactId>servlet-api</artifactId>
+                                <version>2.5</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -268,6 +282,13 @@
                                 <argument>${indexing.id}</argument>
                             </arguments>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>javax.servlet</groupId>
+                                <artifactId>servlet-api</artifactId>
+                                <version>2.5</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -299,6 +320,13 @@
                                 <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexer</argument>
                             </arguments>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>javax.servlet</groupId>
+                                <artifactId>servlet-api</artifactId>
+                                <version>2.5</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
@@ -332,6 +360,13 @@
                                 <argument>${indexing.id}</argument>
                             </arguments>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>javax.servlet</groupId>
+                                <artifactId>servlet-api</artifactId>
+                                <version>2.5</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                 </plugins>
             </build>
