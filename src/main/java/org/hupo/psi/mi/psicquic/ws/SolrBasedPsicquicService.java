@@ -16,15 +16,10 @@
 package org.hupo.psi.mi.psicquic.ws;
 
 import org.apache.cxf.feature.Features;
-import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.*;
@@ -80,10 +75,6 @@ public class SolrBasedPsicquicService implements PsicquicService {
     public synchronized PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
             HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
-
-            solrServer.setConnectionTimeout(connectionTimeOut);
-            solrServer.setSoTimeout(soTimeOut);
-            solrServer.setAllowCompression(allowCompression);
 
             psicquicSolrServer = new PsicquicSolrServer(solrServer);
         }
@@ -245,33 +236,19 @@ public class SolrBasedPsicquicService implements PsicquicService {
     }
 
     private HttpClient createHttpClient() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory
-                .getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory
-                .getSocketFactory()));
 
-        PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
         cm.setMaxTotal(maxTotalConnections);
         cm.setDefaultMaxPerRoute(defaultMaxConnectionsPerHost);
+        RequestConfig.Builder requestBuilder = RequestConfig.custom();
+        requestBuilder = requestBuilder.setConnectTimeout(connectionTimeOut);
+        requestBuilder = requestBuilder.setSocketTimeout(soTimeOut);
 
-        HttpClient httpClient = new DefaultHttpClient(cm);
+        HttpClientBuilder builder = HttpClientBuilder.create();
+        builder.setDefaultRequestConfig(requestBuilder.build());
+        builder.setConnectionManager(cm);
 
-        String proxyHost = config.getProxyHost();
-        String proxyPort = config.getProxyPort();
-
-        if (isValueSet(proxyHost) && proxyHost.trim().length() > 0 &&
-                isValueSet(proxyPort) && proxyPort.trim().length() > 0) {
-            try{
-                HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
-                httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-            }
-            catch (Exception e){
-                logger.error("Impossible to create proxy host:"+proxyHost+", port:"+proxyPort,e);
-            }
-        }
-
-        return httpClient;
+        return builder.build();
     }
 
     private boolean isValueSet(String value) {
