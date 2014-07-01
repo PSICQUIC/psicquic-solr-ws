@@ -20,6 +20,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
 import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
@@ -253,7 +254,16 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                     return formatNotSupportedResponse(format);
                 }
             }
-        } catch (Throwable e) {
+        }
+        catch (IOException e) {
+            return Response.status(503).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<String>("Service unavailable. Please try later.") {
+            }).build();
+        }
+        catch (SolrServerException e) {
+            return Response.status(503).type(MediaType.TEXT_PLAIN).entity(new GenericEntity<String>("Service unavailable. Please try later.") {
+            }).build();
+        }
+        catch (Throwable e) {
             throw new PsicquicServiceException("Problem creating output", e);
         }
 
