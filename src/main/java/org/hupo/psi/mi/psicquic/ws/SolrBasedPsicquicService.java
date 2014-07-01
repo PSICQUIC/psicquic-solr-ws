@@ -53,7 +53,7 @@ public class SolrBasedPsicquicService implements PsicquicService {
 
     // settings SOLRServer
     public static int maxTotalConnections = 128;
-    public static int defaultMaxConnectionsPerHost = 24;
+    public static int defaultMaxConnectionsPerHost = 128;
     public static int connectionTimeOut = 20000;
     public static int soTimeOut = 20000;
     public static boolean allowCompression = true;
