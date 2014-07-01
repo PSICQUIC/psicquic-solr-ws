@@ -3,7 +3,7 @@
 
     <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
     <artifactId>psicquic-solr-ws</artifactId>
-    <version>1.3.12</version>
+    <version>1.3.13-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
@@ -343,7 +343,7 @@
         <dependency>
             <groupId>org.hupo.psi.mi.psicquic</groupId>
             <artifactId>psicquic-solr</artifactId>
-            <version>1.2.4</version>
+            <version>1.2.5-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>woodstox</groupId>
