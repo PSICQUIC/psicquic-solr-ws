@@ -45,30 +45,66 @@
         <jaxrs:serviceBeans>
             <ref bean="restService10"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
 
     <jaxrs:server id="psicquicRestService11" address="/v1.1">
         <jaxrs:serviceBeans>
             <ref bean="restService11"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
 
     <jaxrs:server id="psicquicRestService12" address="/v1.2">
         <jaxrs:serviceBeans>
             <ref bean="restService12"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
 
     <jaxrs:server id="psicquicRestService13" address="/v1.3">
         <jaxrs:serviceBeans>
             <ref bean="restService13"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
 
     <jaxrs:server id="psicquicRestServiceCurrent" address="/current">
         <jaxrs:serviceBeans>
             <ref bean="restService13"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
+
+    <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
+        <property name="marshallerProperties">
+            <map>
+                <entry key="jaxb.formatted.output">
+                    <value type="java.lang.Boolean">true</value>
+                </entry>
+                <entry key="jaxb.schemaLocation">
+                    <value type="java.lang.String">http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/mi/rel25/src/MIF254.xsd</value>
+                </entry>
+            </map>
+        </property>
+        <property name="namespacePrefixes">
+            <map>
+                <entry key="http://psi.hupo.org/mi/mif">
+                    <value type="java.lang.String"></value>
+                </entry>
+            </map>
+        </property>
+        <property name="enableBuffering" value="true" />
+    </bean>
 
 </beans>
