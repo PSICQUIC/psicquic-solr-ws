@@ -5,7 +5,7 @@
     <artifactId>psicquic-ws</artifactId>
     <packaging>war</packaging>
 
-    <version>1.2.7</version>
+    <version>1.2.8-SNAPSHOT</version>
 
     <name>PSI :: PSICQUIC WS Reference Implementation</name>
 
