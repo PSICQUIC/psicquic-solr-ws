@@ -4,7 +4,7 @@
         xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
         version="2.1">
 
-    <bindings schemaLocation="http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/mi/rel25/src/MIF254.xsd" node="/xs:schema">
+    <bindings schemaLocation="https://raw.githubusercontent.com/HUPO-PSI/miXML/master/2.5/src/MIF254.xsd" node="/xs:schema">
         <schemaBindings>
             <package name="psidev.psi.mi.xml254.jaxb"/>
         </schemaBindings>
