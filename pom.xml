@@ -18,6 +18,7 @@
     <properties>
         <cxf.version>2.6.3</cxf.version>
         <spring.version>3.1.2.RELEASE</spring.version>
+        <psicquic.solr.version>1.2.6</psicquic.solr.version>
 
         <!-- configurable bits -->
 
@@ -40,7 +41,6 @@
         <!-- mitab file -->
         <mitab.file>${mitabFile}</mitab.file>
 
-        <psicquic.solr.version>1.2.6</psicquic.solr.version>
     </properties>
 
     <build>
