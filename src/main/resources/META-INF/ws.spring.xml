@@ -93,7 +93,7 @@
                     <value type="java.lang.Boolean">true</value>
                 </entry>
                 <entry key="jaxb.schemaLocation">
-                    <value type="java.lang.String">http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/mi/rel25/src/MIF254.xsd</value>
+                    <value type="java.lang.String">https://raw.githubusercontent.com/HUPO-PSI/miXML/master/2.5/src/MIF254.xsd</value>
                 </entry>
             </map>
         </property>

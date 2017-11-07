@@ -16,7 +16,7 @@
                    targetNamespace="http://psi.hupo.org/mi/psicquic">
 
             <xs:import namespace="http://psi.hupo.org/mi/mif"
-                       schemaLocation="http://psidev.cvs.sourceforge.net/viewvc/psidev/psi/mi/rel25/src/MIF254.xsd"/>
+                       schemaLocation="https://raw.githubusercontent.com/HUPO-PSI/miXML/master/2.5/src/MIF254.xsd"/>
 
             <!-- types -->
 
