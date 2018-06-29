@@ -1,8 +1,6 @@
 import urllib2
-import sys
-from xml.dom.ext.reader import Sax2
-from xml.dom.NodeFilter import NodeFilter
-from xml import xpath
+import xml.etree.ElementTree as ET
+
 # ------------------ FUNCTIONS ------------------
 
 class PsicquicService:
@@ -27,18 +25,17 @@ def readActiveServicesFromRegistry():
 
     content = readURL(registryActiveUrl)
 
-    reader = Sax2.Reader()
-    doc = reader.fromString(content)
-
-    serviceNodes = xpath.Evaluate('service', doc.documentElement)
+    # Create the XML reader
+    root = ET.fromstring(content)
+    xmlns = '{http://hupo.psi.org/psicquic/registry}'
 
     services = []
 
-    for serviceNode in serviceNodes:
-        name = serviceNode.getElementsByTagName('name')[0].firstChild.nodeValue
-        restUrl = serviceNode.getElementsByTagName('restUrl')[0].firstChild.nodeValue
+    for service in root.findall(xmlns + 'service'):
+        name = service.find(xmlns + 'name')
+        restUrl = service.find(xmlns + 'restUrl')
 
-        service = PsicquicService(name, restUrl)
+        service = PsicquicService(name.text, restUrl.text)
         services.append(service)
 
     return services
