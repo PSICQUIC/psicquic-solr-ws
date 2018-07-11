@@ -56,7 +56,7 @@ public class SolrBasedPsicquicRestServiceTest {
                 "/META-INF/psicquic-indexing-spring-test.xml"});
 
         SolrMitabIndexer indexer = (SolrMitabIndexer)context.getBean("solrMitabIndexer");
-        indexer.startJob("mitabIndexNegativeJob");
+        indexer.startJob("mitabIndexMitab28Job");
 
         HttpSolrServer solrServer = solrJettyRunner.getSolrServer();
         Assert.assertEquals(4L, solrServer.query(new SolrQuery("*:*")).getResults().getNumFound());
@@ -202,6 +202,19 @@ public class SolrBasedPsicquicRestServiceTest {
         pso.write(baos);
 
         Assert.assertEquals(2, baos.toString().split("\n").length);
+    }
+
+    @Test
+    public void testGetByQuery_tab28() throws Exception {
+        ResponseImpl response = (ResponseImpl) service.getByQuery("\"up regulates\" AND negative:true", "tab28", "0", "200");
+
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        pso.write(baos);
+
+        System.out.println(baos.toString().split("\n"));
+        Assert.assertEquals(1, baos.toString().split("\n").length);
     }
 
     @Test
