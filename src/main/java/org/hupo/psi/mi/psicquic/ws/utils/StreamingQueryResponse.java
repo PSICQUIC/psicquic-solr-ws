@@ -106,7 +106,7 @@ public class StreamingQueryResponse {
 
         String resultType = requestInfo.getResultType() != null ? requestInfo.getResultType() : PsicquicSolrServer.RETURN_TYPE_DEFAULT;
 
-        if (PsicquicSolrServer.RETURN_TYPE_MITAB25.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB26.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB27.equals(resultType)) {
+        if (PsicquicSolrServer.RETURN_TYPE_MITAB25.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB26.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB27.equals(resultType) || PsicquicSolrServer.RETURN_TYPE_MITAB28.equals(resultType)) {
             if (logger.isDebugEnabled()) logger.debug("Creating PSI-MI TAB");
 
             if (results != null){

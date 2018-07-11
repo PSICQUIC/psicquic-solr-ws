@@ -64,6 +64,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
     public static final String RETURN_TYPE_MITAB25 = "tab25";
     public static final String RETURN_TYPE_MITAB26 = "tab26";
     public static final String RETURN_TYPE_MITAB27 = "tab27";
+    public static final String RETURN_TYPE_MITAB28 = "tab28";
     public static final String RETURN_TYPE_BIOPAX = "biopax";
     public static final String RETURN_TYPE_BIOPAX_L2 = "biopax-L2";
     public static final String RETURN_TYPE_BIOPAX_L3 = "biopax-L3";
@@ -85,6 +86,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
             RETURN_TYPE_MITAB25,
 			RETURN_TYPE_MITAB26,
 			RETURN_TYPE_MITAB27,
+			RETURN_TYPE_MITAB28,
 			RETURN_TYPE_BIOPAX,
             RETURN_TYPE_XGMML,
             RETURN_TYPE_RDF_XML,
@@ -141,7 +143,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         int maxResults;
 
         try {
-            firstResult =Integer.parseInt(firstResultStr);
+            firstResult = Integer.parseInt(firstResultStr);
         } catch (NumberFormatException e) {
             throw new PsicquicServiceException("firstResult parameter is not a number: "+firstResultStr);
         }
@@ -239,7 +241,7 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                            psicquicResults.getNumberResults()).build();
                 }
                 else if (RETURN_TYPE_MITAB26.equalsIgnoreCase(format)) {
-                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
 
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB26, new String[]{config.getQueryFilter()});
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
@@ -251,7 +253,15 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
                     PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB27, new String[]{config.getQueryFilter()});
                     return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
                             psicquicResults.getNumberResults()).build();
-                }else {
+                }
+                else if (RETURN_TYPE_MITAB28.equalsIgnoreCase(format)) {
+                    PsicquicSearchResults psicquicResults = psicquicSolrServer.search(query, 0, 0, PsicquicSolrServer.RETURN_TYPE_COUNT, config.getQueryFilter());
+
+                    PsicquicStreamingOutput psicquicStreaming = new PsicquicStreamingOutput(psicquicSolrServer, query, firstResult, maxResults, PsicquicSolrServer.RETURN_TYPE_MITAB28, new String[]{config.getQueryFilter()});
+                    return prepareResponse(Response.status(200).type(MediaType.TEXT_PLAIN), new GenericEntity<PsicquicStreamingOutput>(psicquicStreaming){},
+                            psicquicResults.getNumberResults()).build();
+                }
+                else {
                     return formatNotSupportedResponse(format);
                 }
             }
