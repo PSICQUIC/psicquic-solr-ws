@@ -331,7 +331,9 @@ public class SolrBasedPsicquicRestService implements PsicquicRestService {
         StringBuilder sb = new StringBuilder(256);
 
         for (Map.Entry entry : config.getProperties().entrySet()) {
-            sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+            if (!entry.getKey().toString().isEmpty()) {
+                sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+            }
         }
 
         return Response.status(200)
