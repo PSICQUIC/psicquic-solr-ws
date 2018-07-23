@@ -15,10 +15,9 @@ sub getXrefByDbName {
 
 sub readPsicquic {
     my ( $url, $query, $from, $size ) = @_;
-    
-    # Remove the trailing /psicquic at the end of the URL so we can build  a REST URL.
-    my $finalUrl = $url =~ s/\/psicquic$//;
-    my $queryUrl = $url . "/current/search/query/" . $query . "?firstResult=" . $from . "&maxResults=" . $size;
+
+    # Build the query
+    my $queryUrl = $url . "query/" . $query . "?firstResult=" . $from . "&maxResults=" . $size;
     
     my $content = get $queryUrl;
     die "Couldn't get $queryUrl" unless defined $content;
@@ -41,7 +40,7 @@ sub readPsicquic {
 ################################################################################
 # Registry URL that lists all ACTIVE PSICQUIC services
 # Documentation: http://code.google.com/p/psicquic/wiki/Registry
-my $registryUrl = 'http://www.ebi.ac.uk/Tools/webservices/psicquic/registry/registry?action=ACTIVE&format=txt';
+my $registryUrl = 'http://www.ebi.ac.uk/Tools/webservices/psicquic/registry/registry?action=ACTIVE&format=txt&protocol=rest';
 
 my ($miql) = @ARGV;
 print "Searching for '$miql'...\n\n";
