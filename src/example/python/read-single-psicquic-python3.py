@@ -1,4 +1,4 @@
-import urllib2
+from urllib.request import urlopen
 
 # ------------------ MITAB FUNCTIONS ------------------
 
@@ -19,17 +19,18 @@ def getXrefByDatabase(line, database):
 queryUrl = "http://www.ebi.ac.uk/Tools/webservices/psicquic/intact/webservices/current/search/query/BBC1?firstResult=0&maxResults=10";
 
 try:
-    fileHandle = urllib2.urlopen(queryUrl)
+    fileHandle = urlopen(queryUrl)
     content = fileHandle.read()
     fileHandle.close()
 except IOError:
-    print 'Cannot open URL' % urlStr
+    print('Cannot open URL ' + urlStr)
     content = ''
 
 lines = content.splitlines()
 
 for line in lines:
+    line = str(line, encoding='utf8')
     cols = line.split('\t')
 
-    print getXrefByDatabase(cols[0], 'uniprotkb') + ' interacts with ' + getXrefByDatabase(cols[1], 'uniprotkb')
+    print(getXrefByDatabase(cols[0], 'uniprotkb') + ' interacts with ' + getXrefByDatabase(cols[1], 'uniprotkb'))
 
