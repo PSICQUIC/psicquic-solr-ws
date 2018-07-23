@@ -290,4 +290,10 @@ public class SolrBasedPsicquicRestServiceTest {
 
         Assert.assertNotNull(pso5);
     }
+
+    @Test
+    public void testGetVersion() {
+        Assert.assertEquals(service.getVersion(), "TEST.VERSION");
+    }
+
 }
