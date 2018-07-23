@@ -1,0 +1,1 @@
+# psicquic-solr-ws
