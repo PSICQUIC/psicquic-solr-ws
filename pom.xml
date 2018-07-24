@@ -18,7 +18,7 @@
     <properties>
         <cxf.version>2.6.3</cxf.version>
         <spring.version>3.1.2.RELEASE</spring.version>
-        <psicquic.solr.version>1.2.6</psicquic.solr.version>
+        <psicquic.solr.version>1.2.7-SNAPSHOT</psicquic.solr.version>
 
         <!-- configurable bits -->
 
