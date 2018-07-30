@@ -227,10 +227,12 @@ public class SolrBasedPsicquicService implements PsicquicService {
         List<Property> properties = new ArrayList<Property>();
 
         for (Map.Entry<String,String> entry : config.getProperties().entrySet()) {
-            Property prop = new Property();
-            prop.setKey(entry.getKey());
-            prop.setValue(entry.getValue());
-            properties.add(prop);
+            if (!entry.getKey().isEmpty()) {
+                Property prop = new Property();
+                prop.setKey(entry.getKey());
+                prop.setValue(entry.getValue());
+                properties.add(prop);
+            }
         }
 
         return properties;
