@@ -366,6 +366,18 @@
         </profile>
     </profiles>
 
+    <!-- to change the miriam-lib used in the biopax-validator-core:2.0.0
+    to the version with the fix supporting https -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.biopax</groupId>
+                <artifactId>miriam-lib</artifactId>
+                <version>3.0.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- PSIMI -->
         <dependency>

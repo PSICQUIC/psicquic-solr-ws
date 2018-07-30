@@ -236,7 +236,7 @@ public class SolrBasedPsicquicRestServiceTest {
         Assert.assertNotNull(pso);
     }
 
-    @Test //TODO affected by biopax-rdf converter in psicquic-solr and this test when a new version for biopax supporting https is released (6-Nov 2017 JIRA GENISSUES-178)
+    @Test
     public void testGetByQuery_biopax() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax", "0", "200");
 
@@ -257,7 +257,7 @@ public class SolrBasedPsicquicRestServiceTest {
         Assert.assertNotNull(pso3);
     }
 
-    @Test//TODO affected by biopax-rdf converter and this test when a new version for biopax supporting https is released (6-Nov 2017 JIRA GENISSUES-178)
+    @Test
     public void testGetByQuery_rdf() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf", "0", "200");
 
