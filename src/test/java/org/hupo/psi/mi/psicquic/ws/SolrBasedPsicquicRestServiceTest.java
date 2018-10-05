@@ -56,7 +56,7 @@ public class SolrBasedPsicquicRestServiceTest {
                 "/META-INF/psicquic-indexing-spring-test.xml"});
 
         SolrMitabIndexer indexer = (SolrMitabIndexer)context.getBean("solrMitabIndexer");
-        indexer.startJob("mitabIndexNegativeJob");
+        indexer.startJob("mitabIndexMitab28Job");
 
         HttpSolrServer solrServer = solrJettyRunner.getSolrServer();
         Assert.assertEquals(4L, solrServer.query(new SolrQuery("*:*")).getResults().getNumFound());
@@ -205,6 +205,19 @@ public class SolrBasedPsicquicRestServiceTest {
     }
 
     @Test
+    public void testGetByQuery_tab28() throws Exception {
+        ResponseImpl response = (ResponseImpl) service.getByQuery("\"up regulates\" AND negative:true", "tab28", "0", "200");
+
+        PsicquicStreamingOutput pso = ((GenericEntity<PsicquicStreamingOutput>) response.getEntity()).getEntity();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        pso.write(baos);
+
+        System.out.println(baos.toString().split("\n"));
+        Assert.assertEquals(1, baos.toString().split("\n").length);
+    }
+
+    @Test
     public void testGetByQuery_xml25() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "xml25", "0", "200");
 
@@ -223,7 +236,7 @@ public class SolrBasedPsicquicRestServiceTest {
         Assert.assertNotNull(pso);
     }
 
-    @Test //TODO affected by biopax-rdf converter in psicquic-solr and this test when a new version for biopax supporting https is released (6-Nov 2017 JIRA GENISSUES-178)
+    @Test
     public void testGetByQuery_biopax() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "biopax", "0", "200");
 
@@ -244,7 +257,7 @@ public class SolrBasedPsicquicRestServiceTest {
         Assert.assertNotNull(pso3);
     }
 
-    @Test//TODO affected by biopax-rdf converter and this test when a new version for biopax supporting https is released (6-Nov 2017 JIRA GENISSUES-178)
+    @Test
     public void testGetByQuery_rdf() throws Exception {
         ResponseImpl response = (ResponseImpl) service.getByQuery("pmethod:\"western blot\" AND negative:(true OR false)", "rdf", "0", "200");
 
@@ -277,4 +290,10 @@ public class SolrBasedPsicquicRestServiceTest {
 
         Assert.assertNotNull(pso5);
     }
+
+    @Test
+    public void testGetVersion() {
+        Assert.assertEquals(service.getVersion(), "TEST.VERSION");
+    }
+
 }

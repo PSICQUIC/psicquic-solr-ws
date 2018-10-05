@@ -1,8 +1,6 @@
-import urllib2
-import sys
-from xml.dom.ext.reader import Sax2
-from xml.dom.NodeFilter import NodeFilter
-from xml import xpath
+from urllib.request import urlopen
+import xml.etree.ElementTree as ET
+
 # ------------------ FUNCTIONS ------------------
 
 class PsicquicService:
@@ -12,11 +10,11 @@ class PsicquicService:
 
 def readURL(url):
     try:
-        fileHandle = urllib2.urlopen(url)
+        fileHandle = urlopen(url)
         content = fileHandle.read()
         fileHandle.close()
     except IOError:
-        print 'Cannot open URL' % url
+        print('Cannot open URL ' + url)
         content = ''
 
     return content
@@ -27,18 +25,17 @@ def readActiveServicesFromRegistry():
 
     content = readURL(registryActiveUrl)
 
-    reader = Sax2.Reader()
-    doc = reader.fromString(content)
-
-    serviceNodes = xpath.Evaluate('service', doc.documentElement)
+    # Create the XML reader
+    root = ET.fromstring(content)
+    xmlns = '{http://hupo.psi.org/psicquic/registry}'
 
     services = []
 
-    for serviceNode in serviceNodes:
-        name = serviceNode.getElementsByTagName('name')[0].firstChild.nodeValue
-        restUrl = serviceNode.getElementsByTagName('restUrl')[0].firstChild.nodeValue
+    for service in root.findall(xmlns + 'service'):
+        name = service.find(xmlns + 'name')
+        restUrl = service.find(xmlns + 'restUrl')
 
-        service = PsicquicService(name, restUrl)
+        service = PsicquicService(name.text, restUrl.text)
         services.append(service)
 
     return services
@@ -64,14 +61,15 @@ def getXrefByDatabase(line, database):
 def queryPsicquic(psicquicRestUrl, query, offset, maxResults):
     psicquicUrl = psicquicRestUrl + 'query/' + query + '?firstResult=' + str(offset) + '&maxResults=' + str(maxResults);
 
-    print '\t\tURL: ' + psicquicUrl
+    print('\t\tURL: ' + psicquicUrl)
 
     psicquicResultLines = readURL(psicquicUrl).splitlines()
 
     for line in psicquicResultLines:
+        line = str(line, encoding='utf8')
         cols = line.split('\t')
 
-        print '\t' + getXrefByDatabase(cols[0], 'uniprotkb') + ' interacts with ' + getXrefByDatabase(cols[1], 'uniprotkb')
+        print('\t' + getXrefByDatabase(cols[0], 'uniprotkb') + ' interacts with ' + getXrefByDatabase(cols[1], 'uniprotkb'))
 
 # -----------------------------------------------------
 
@@ -81,9 +79,9 @@ query = 'BBC1'
 services = readActiveServicesFromRegistry()
 
 for service in services:
-    print 'Service: ' + service.name + ' ================================================================== '
+    print('Service: ' + service.name + ' ================================================================== ')
 
     queryPsicquic(service.restUrl, query, 0, 200)
 
-    print '\n'
+    print('\n')
 

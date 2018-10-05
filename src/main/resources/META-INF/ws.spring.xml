@@ -31,7 +31,8 @@
     <bean name="restService10" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService10"/>
     <bean name="restService11" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService11"/>
     <bean name="restService12" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService12"/>
-    <bean name="restService13" class="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService"/>
+    <bean name="restService13" class="org.hupo.psi.mi.psicquic.ws.legacy.SolrBasedPsicquicRestService13"/>
+    <bean name="restService14" class="org.hupo.psi.mi.psicquic.ws.SolrBasedPsicquicRestService"/>
 
     <!-- Service endpoint -->
     <!-- See http://incubator.apache.org/cxf/faq.html regarding CXF + Spring AOP -->
@@ -77,9 +78,18 @@
         </jaxrs:providers>
     </jaxrs:server>
 
+    <jaxrs:server id="psicquicRestService14" address="/v1.4">
+        <jaxrs:serviceBeans>
+            <ref bean="restService14"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jaxbProvider" />
+        </jaxrs:providers>
+    </jaxrs:server>
+
     <jaxrs:server id="psicquicRestServiceCurrent" address="/current">
         <jaxrs:serviceBeans>
-            <ref bean="restService13"/>
+            <ref bean="restService14"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jaxbProvider" />

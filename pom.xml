@@ -3,8 +3,9 @@
 
     <groupId>org.hupo.psi.mi.psicquic.ws</groupId>
     <artifactId>psicquic-solr-ws</artifactId>
-    <version>1.3.14</version>
     <packaging>war</packaging>
+
+    <version>1.4.0</version>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
@@ -18,7 +19,7 @@
     <properties>
         <cxf.version>2.6.3</cxf.version>
         <spring.version>3.1.2.RELEASE</spring.version>
-        <psicquic.solr.version>1.2.6</psicquic.solr.version>
+        <psicquic.solr.version>1.4.0</psicquic.solr.version>
 
         <!-- configurable bits -->
 
@@ -41,6 +42,7 @@
         <!-- mitab file -->
         <mitab.file>${mitabFile}</mitab.file>
 
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
@@ -365,6 +367,18 @@
             </build>
         </profile>
     </profiles>
+
+    <!-- to change the miriam-lib used in the biopax-validator-core:2.0.0
+    to the version with the fix supporting https -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.biopax</groupId>
+                <artifactId>miriam-lib</artifactId>
+                <version>3.0.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- PSIMI -->

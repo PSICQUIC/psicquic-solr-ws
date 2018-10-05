@@ -61,7 +61,8 @@ public class SolrBasedPsicquicService implements PsicquicService {
     public static final int BLOCKSIZE_MAX = 500;
 
     public static final List<String> SUPPORTED_SOAP_RETURN_TYPES = Arrays.asList(PsicquicSolrServer.RETURN_TYPE_XML25,
-            PsicquicSolrServer.RETURN_TYPE_MITAB25, PsicquicSolrServer.RETURN_TYPE_MITAB26, PsicquicSolrServer.RETURN_TYPE_MITAB27, PsicquicSolrServer.RETURN_TYPE_COUNT);
+            PsicquicSolrServer.RETURN_TYPE_MITAB25, PsicquicSolrServer.RETURN_TYPE_MITAB26, PsicquicSolrServer.RETURN_TYPE_MITAB27,
+            PsicquicSolrServer.RETURN_TYPE_MITAB28, PsicquicSolrServer.RETURN_TYPE_COUNT);
 
 
     @Autowired
@@ -226,10 +227,12 @@ public class SolrBasedPsicquicService implements PsicquicService {
         List<Property> properties = new ArrayList<Property>();
 
         for (Map.Entry<String,String> entry : config.getProperties().entrySet()) {
-            Property prop = new Property();
-            prop.setKey(entry.getKey());
-            prop.setValue(entry.getValue());
-            properties.add(prop);
+            if (!entry.getKey().isEmpty()) {
+                Property prop = new Property();
+                prop.setKey(entry.getKey());
+                prop.setValue(entry.getValue());
+                properties.add(prop);
+            }
         }
 
         return properties;

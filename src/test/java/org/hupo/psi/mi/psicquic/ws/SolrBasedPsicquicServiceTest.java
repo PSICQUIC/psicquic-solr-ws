@@ -57,7 +57,7 @@ public class SolrBasedPsicquicServiceTest {
         "/META-INF/psicquic-indexing-spring-test.xml"});
 
         SolrMitabIndexer indexer = (SolrMitabIndexer)context.getBean("solrMitabIndexer");
-        indexer.startJob("mitabIndexNegativeJob");
+        indexer.startJob("mitabIndexMitab28Job");
 
         HttpSolrServer solrServer = solrJettyRunner.getSolrServer();
         Assert.assertEquals(4L, solrServer.query(new SolrQuery("*:*")).getResults().getNumFound());
@@ -249,7 +249,7 @@ public class SolrBasedPsicquicServiceTest {
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
     }
     @Test
-    public void testGetByQueryMiatb27() throws Exception {
+    public void testGetByQueryMitab27() throws Exception {
         RequestInfo info = new RequestInfo();
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB27 );
         info.setBlockSize(50);
@@ -263,6 +263,29 @@ public class SolrBasedPsicquicServiceTest {
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
+    }
+
+    @Test
+    public void testGetByQueryMitab28() throws Exception {
+        RequestInfo info = new RequestInfo();
+        info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB28 );
+        info.setBlockSize(50);
+
+        final QueryResponse response = service.getByQuery("\"down regulates\" AND negative:(false OR true)", info);
+        Assert.assertEquals(2, response.getResultInfo().getTotalResults());
+        Assert.assertEquals(2, response.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response2 = service.getByQuery("bioeffect:kinase activity AND negative:(false OR true)", info);
+        Assert.assertEquals(4, response2.getResultInfo().getTotalResults());
+        Assert.assertEquals(4, response2.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response3 = service.getByQuery("\"up regulates\" AND negative:true", info);
+        Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
+
+        final QueryResponse response4 = service.getByQuery("\"antioxidant activity\"", info);
+        Assert.assertEquals(1, response4.getResultInfo().getTotalResults());
+        Assert.assertEquals(1, response4.getResultSet().getMitab().split("\n").length);
     }
 
     @Test
