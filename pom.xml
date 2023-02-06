@@ -5,7 +5,7 @@
     <artifactId>psicquic-solr-ws</artifactId>
     <packaging>war</packaging>
 
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
@@ -18,8 +18,8 @@
 
     <properties>
         <cxf.version>2.6.3</cxf.version>
-        <spring.version>3.1.2.RELEASE</spring.version>
-        <psicquic.solr.version>1.4.0</psicquic.solr.version>
+        <spring.version>4.3.30.RELEASE</spring.version>
+        <psicquic.solr.version>1.5.0-SNAPSHOT</psicquic.solr.version>
 
         <!-- configurable bits -->
 
@@ -112,16 +112,16 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.10.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${cxf.version}</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>generate-sources</id>
@@ -529,23 +529,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- jaxb -->
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-            <version>2.2.6</version>
-        </dependency>
-        <dependency>
             <groupId>javax.xml.soap</groupId>
             <artifactId>saaj-api</artifactId>
             <version>1.3</version>
@@ -645,7 +628,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -653,11 +636,11 @@
     <repositories>
         <repository>
             <id>nexus-ebi-release-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
         </repository>
         <repository>
             <id>nexus-ebi-snapshot-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
         </repository>
     </repositories>
 
