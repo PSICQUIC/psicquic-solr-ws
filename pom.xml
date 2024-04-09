@@ -5,7 +5,7 @@
     <artifactId>psicquic-solr-ws</artifactId>
     <packaging>war</packaging>
 
-    <version>1.5.1</version>
+    <version>1.5.2-SNAPSHOT</version>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
@@ -19,7 +19,7 @@
     <properties>
         <cxf.version>3.2.14</cxf.version>
         <spring.version>4.3.30.RELEASE</spring.version>
-        <psicquic.solr.version>1.5.1</psicquic.solr.version>
+        <psicquic.solr.version>1.5.2-SNAPSHOT</psicquic.solr.version>
 
         <!-- configurable bits -->
 
