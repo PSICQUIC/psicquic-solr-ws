@@ -86,7 +86,7 @@ hh-test-deploy:
   script:
     - kubectl config get-contexts
     - kubectl config use-context hh-intact-test
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_REGISTRY_PASSWORD --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
     - kubectl get secrets gitlab-registry -o yaml
     - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
@@ -99,7 +99,7 @@ hx-prod-deploy:
   script:
     - kubectl config get-contexts
     - kubectl config use-context hx-intact-prod
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_REGISTRY_PASSWORD --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
     - kubectl get secrets gitlab-registry -o yaml
     - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
@@ -112,7 +112,7 @@ hh-prod-deploy:
   script:
     - kubectl config get-contexts
     - kubectl config use-context hh-intact-prod
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_REGISTRY_PASSWORD --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
     - kubectl get secrets gitlab-registry -o yaml
     - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
