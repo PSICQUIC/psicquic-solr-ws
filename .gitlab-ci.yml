@@ -32,15 +32,13 @@ maven-build:
     - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter="(interaction_id:imex OR pubid:imex)" -Dservice.name=imex -Dmaven.test.skip=true
     - mv target/imex-psicquic-ws.war war_files/
     - mvn clean
-    - sed -i -e "s|<TOMCAT_MANAGER_PASSWORD>|$TOMCAT_MANAGER_PASSWORD|g" config/tomcat-users.xml
     - POM_VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
-    - echo "CONTAINER_IMAGE=${CI_REGISTRY_IMAGE}:${POM_VERSION}" > build.env
+    - echo "IMAGE_TAG=$POM_VERSION-$CI_COMMIT_SHORT_SHA" > build.env
   after_script:
     - rm -rf ~/.m2/repository/*
   artifacts:
     paths:
       - war_files/*.war
-      - config/*
     reports:
       dotenv: build.env
   when: manual
@@ -54,14 +52,14 @@ docker-build:
     - docker system prune -af
   script:
     - echo "$CI_DOCKER_HUB_PASSWORD" | docker login -u $CI_DOCKER_HUB_USER --password-stdin
-    - echo ${CONTAINER_IMAGE}
-    - docker build -t ${CONTAINER_IMAGE} --no-cache .
+    - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker build -t "$CI_REGISTRY_IMAGE:$IMAGE_TAG" --no-cache .
     - docker image ls
     - docker logout
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - docker push ${CONTAINER_IMAGE}
-    - docker rmi ${CONTAINER_IMAGE}
-    - docker logout "$CI_REGISTRY"
+    - docker push "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker rmi "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker logout $CI_REGISTRY
 
 .kubernetes-deploy:
   stage: kubernetes-deploy
@@ -71,50 +69,35 @@ docker-build:
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl
     - mv ./kubectl /usr/local/bin/kubectl
-    - git clone https://k8s-config-token:${K8S_CONFIG_TOKEN}@gitlab.ebi.ac.uk/intact-ci/k8s-config
-    - cd k8s-config
-    - git fetch
-    - git checkout new-cluster
-    - cd -
+    - git clone https://k8s-config-token:$K8S_CONFIG_TOKEN@gitlab.ebi.ac.uk/intact-ci/k8s-config
     - mkdir ~/.kube
     - cp k8s-config/config ~/.kube/
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context $KUBE_CONTEXT
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl get secrets gitlab-registry -o yaml
+    - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - sed -i -e "s|<IMAGE_TAG>|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" k8s-deploy-config/k8s_deploy.yml
+    - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
+    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
+    - kubectl get nodes
   when: manual
 
 hh-test-deploy:
-  extends: [ .kubernetes-deploy ]
+  extends: .kubernetes-deploy
   needs: [ maven-build, docker-build ]
-  script:
-    - kubectl config get-contexts
-    - kubectl config use-context hh-intact-test
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
-    - kubectl get secrets gitlab-registry -o yaml
-    - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
-    - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
-    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
-    - kubectl get nodes
+  variables:
+    KUBE_CONTEXT: hh-intact-test
 
 hx-prod-deploy:
-  extends: [ .kubernetes-deploy ]
+  extends: .kubernetes-deploy
   needs: [ maven-build, docker-build ]
-  script:
-    - kubectl config get-contexts
-    - kubectl config use-context hx-intact-prod
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
-    - kubectl get secrets gitlab-registry -o yaml
-    - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
-    - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
-    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
-    - kubectl get nodes
+  variables:
+    KUBE_CONTEXT: hx-intact-prod
 
 hh-prod-deploy:
-  extends: [ .kubernetes-deploy ]
+  extends: .kubernetes-deploy
   needs: [ maven-build, docker-build ]
-  script:
-    - kubectl config get-contexts
-    - kubectl config use-context hh-intact-prod
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
-    - kubectl get secrets gitlab-registry -o yaml
-    - sed -i -e "s|<CONTAINER_IMAGE>|$CONTAINER_IMAGE|g" k8s-deploy-config/k8s_deploy.yml
-    - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
-    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
-    - kubectl get nodes
+  variables:
+    KUBE_CONTEXT: hh-intact-prod
