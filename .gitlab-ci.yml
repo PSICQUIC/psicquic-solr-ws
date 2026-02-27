@@ -89,15 +89,27 @@ hh-test-deploy:
   needs: [ maven-build, docker-build ]
   variables:
     KUBE_CONTEXT: hh-intact-test
+  environment:
+    name: hh/test
+    deployment_tier: testing
+    url: http://hh-rke-wp-webadmin-99-worker-1.caas.ebi.ac.uk:31237/psicquic/intact/webservices/current/search/query/*?format=count
 
 hx-prod-deploy:
   extends: .kubernetes-deploy
   needs: [ maven-build, docker-build ]
   variables:
     KUBE_CONTEXT: hx-intact-prod
+  environment:
+    name: hx/prod
+    deployment_tier: production
+    url: http://hx-rke-wp-webadmin-78-worker-1.caas.ebi.ac.uk:31237/psicquic/intact/webservices/current/search/query/*?format=count
 
 hh-prod-deploy:
   extends: .kubernetes-deploy
   needs: [ maven-build, docker-build ]
   variables:
     KUBE_CONTEXT: hh-intact-prod
+  environment:
+    name: hh/prod
+    deployment_tier: production
+    url: http://hh-rke-wp-webadmin-102-worker-1.caas.ebi.ac.uk:31237/psicquic/intact/webservices/current/search/query/*?format=count
