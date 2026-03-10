@@ -1,0 +1,80 @@
+# Specifies what version of K8s you want to use
+apiVersion: v1
+# A service is used to expose your Deployment to the external access
+kind: Service
+metadata:
+  name: psicquic-solr-ws-service
+spec:
+  ports:
+    - port: 31237
+      protocol: TCP
+      # The port which will be externally exposed. Must be in the range [30000, 32767].
+      nodePort: 31237
+      # The port on your Deployment which it will expose
+      targetPort: 8080
+  selector:
+    # Selects the disease-portal-client Deployment to attach the Service to
+    app: psicquic-solr-ws
+    # Tell K8s this wants to expose an external port
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psicquic-solr-ws-deployment
+spec:
+  selector:
+    matchLabels:
+      app: psicquic-solr-ws
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: psicquic-solr-ws
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      containers:
+        - name: psicquic-solr-ws
+          # Pull the image which contains psicquic-solr-ws webservice and the built assets from EBI's dockerhub
+          image: <IMAGE_TAG>
+          ports:
+            # We are using psicquic-solr-ws webservice config which serves on port 8080
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - "if [ ! -d /usr/local/tomcat/conf/tomcat-users.xml ] ; then cp /tmp/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml ; fi ; \
+                     if [ ! -d /usr/local/tomcat/webapps/manager/META-INF/context.xml ] ; then cp /tmp/manager-context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml ; fi ;"
+          volumeMounts:
+            - name: tomcat-config
+              mountPath: /tmp/tomcat-users.xml
+              subPath: tomcat-users.xml
+            - name: tomcat-config
+              mountPath: /tmp/manager-context.xml
+              subPath: manager-context.xml
+      volumes:
+        - name: tomcat-config
+          configMap:
+            name: tomcat-config
+      imagePullSecrets:
+        # Provided by GitLab, this allows K8s to connect to dockerhub.ebi.ac.uk
+        - name: gitlab-registry
