@@ -8,15 +8,13 @@ spec:
   ports:
     - port: 31237
       protocol: TCP
-      # The port which will be externally exposed. Must be in the range [30000, 32767].
-      nodePort: 31237
       # The port on your Deployment which it will expose
       targetPort: 8080
   selector:
     # Selects the disease-portal-client Deployment to attach the Service to
     app: psicquic-solr-ws
     # Tell K8s this wants to expose an external port
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -78,3 +76,22 @@ spec:
       imagePullSecrets:
         # Provided by GitLab, this allows K8s to connect to dockerhub.ebi.ac.uk
         - name: gitlab-registry
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: psicquic-solr-ws-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /Tools/webservices/psicquic/(intact|uniprot|mbinfo|mpidb|mint|bhf-ucl|hpidb|imex)
+        pathType: Prefix
+        backend:
+          service:
+            name: psicquic-solr-ws-service
+            port:
+              number: 31237
+
