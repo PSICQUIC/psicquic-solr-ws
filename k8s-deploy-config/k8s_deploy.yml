@@ -10,12 +10,11 @@ spec:
       protocol: TCP
       # The port on your Deployment which it will expose
       targetPort: 8080
-      nodePort: 31237
   selector:
     # Selects the disease-portal-client Deployment to attach the Service to
     app: psicquic-solr-ws
     # Tell K8s this wants to expose an external port
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
