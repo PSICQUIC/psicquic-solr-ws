@@ -41,6 +41,7 @@ spec:
         - name: psicquic-solr-ws
           # Pull the image which contains psicquic-solr-ws webservice and the built assets from EBI's dockerhub
           image: <IMAGE_TAG>
+          imagePullPolicy: IfNotPresent
           ports:
             # We are using psicquic-solr-ws webservice config which serves on port 8080
             - containerPort: 8080
