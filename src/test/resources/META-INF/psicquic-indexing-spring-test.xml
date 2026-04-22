@@ -24,14 +24,30 @@
         <property name="resource" ref="mitab28FileTest"/>
     </bean>
 
+    <!-- solr -->
+
+    <bean id="embeddedSolrServerFactory" class="org.springframework.data.solr.server.support.EmbeddedSolrServerFactory">
+        <constructor-arg value="src/test/resources/solr-home"/>
+    </bean>
+
+    <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+        <constructor-arg ref="embeddedSolrServerFactory"/>
+    </bean>
+
     <!-- writer -->
 
+    <bean id="solrInteractionConverter" class="org.hupo.psi.mi.psicquic.indexing.batch.converter.SolrInteractionConverter">
+    </bean>
+
     <bean id="solrWriterTest" class="org.hupo.psi.mi.psicquic.indexing.batch.writer.SolrItemWriter">
-        <property name="solrUrl" value="http://127.0.0.1:18080/solr"/>
+        <property name="solrTemplate" ref="solrTemplate"/>
+        <property name="solrCollection" value="interactions"/>
+        <property name="solrConverter" ref="solrInteractionConverter"/>
     </bean>
 
     <bean id="solrCleanerTaskletTest" class="org.hupo.psi.mi.psicquic.indexing.batch.tasklet.SolrCleanerTasklet">
-        <property name="solrUrl" value="http://127.0.0.1:18080/solr"/>
+        <property name="solrTemplate" ref="solrTemplate"/>
+        <property name="solrCollection" value="interactions"/>
     </bean>
 
     <!-- steps -->

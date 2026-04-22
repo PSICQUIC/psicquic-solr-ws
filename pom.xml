@@ -5,7 +5,7 @@
     <artifactId>psicquic-solr-ws</artifactId>
     <packaging>war</packaging>
 
-    <version>1.5.2</version>
+    <version>1.5.3-SNAPSHOT</version>
 
     <name>PSI :: PSICQUIC WS Reference Implementation based on SOLR</name>
 
@@ -19,7 +19,7 @@
     <properties>
         <cxf.version>3.2.14</cxf.version>
         <spring.version>4.3.30.RELEASE</spring.version>
-        <psicquic.solr.version>1.5.2</psicquic.solr.version>
+        <psicquic.solr.version>2.0.0-SNAPSHOT</psicquic.solr.version>
 
         <!-- configurable bits -->
 
@@ -155,153 +155,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>disable-java8-doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <additionalparam>-Xdoclint:none</additionalparam>
-            </properties>
-        </profile>
-        <!-- will start install solr-home during package lifecycle and start solr server during pre-integration-test lifecycle -->
-        <profile>
-            <id>start-jetty-solr</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <!-- start server before cleaning project  -->
-                                <id>setup-solr</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>org.hupo.psi.mi.psicquic.ws.SetupSolrServer</mainClass>
-                                    <arguments>
-                                        <argument>${solr.workdir}</argument>
-                                    </arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.mortbay.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-                        <version>7.2.0.RC0</version>
-                        <configuration>
-                            <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                                    <port>${jetty.port}</port>
-                                    <maxIdleTime>600000</maxIdleTime>
-                                </connector>
-                            </connectors>
-                            <scanIntervalSeconds>0</scanIntervalSeconds>
-                            <systemProperties>
-                                <systemProperty>
-                                    <name>solr.solr.home</name>
-                                    <value>${solr.workdir}/solr-home</value>
-                                </systemProperty>
-                            </systemProperties>
-                            <contextHandlers>
-                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                    <war>${solr.workdir}/solr.war</war>
-                                    <contextPath>/solr</contextPath>
-                                    <virtualHosts>
-                                        <virtualHost>127.0.0.1</virtualHost>
-                                    </virtualHosts>
-                                </contextHandler>
-                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                    <war>${basedir}/target/${service.name}-psicquic-ws-${project.version}.war</war>
-                                    <contextPath>/psicquic</contextPath>
-                                </contextHandler>
-                            </contextHandlers>
-                            <stopPort />
-                            <stopKey />
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>start-jetty</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!-- create solr-home, start solr-server and index mitab file in solr-home then shutdown solr server-->
-        <profile>
-            <id>createIndex</id>
-            <build>
-                <plugins>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-Xmx2024m</argument>
-                                <argument>-Xms256m</argument>
-                                <argument>-classpath</argument>
-                                <classpath />
-
-                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <!-- create solr-home, start solr-server and restart indexing mitab file in solr-home then shutdown solr server-->
-        <profile>
-            <id>restartIndex</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-Xmx2024m</argument>
-                                <argument>-Xms256m</argument>
-
-                                <argument>-classpath</argument>
-                                <classpath />
-
-                                <argument>org.hupo.psi.mi.psicquic.ws.indexing.MitabIndexerAndJettyRunner</argument>
-                                <argument>${indexing.id}</argument>
-                            </arguments>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>createIndexWithSolrRunning</id>
             <build>
@@ -516,6 +369,19 @@
             <artifactId>h2</artifactId>
             <version>1.4.197</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

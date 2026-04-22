@@ -18,6 +18,7 @@ package org.hupo.psi.mi.psicquic.ws.config;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.*;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.data.solr.core.SolrOperations;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ public class PsicquicConfig implements DisposableBean{
     private String queryLogFileName;
     private String proxyHost;
     private String proxyPort;
+    private SolrOperations solrTemplate;
 
     private Logger queryLogger;
     private String statsDirectory;
@@ -151,6 +153,14 @@ public class PsicquicConfig implements DisposableBean{
 
     public void setSolrUrl(String solrUrl) {
         this.solrUrl = solrUrl;
+    }
+
+    public SolrOperations getSolrTemplate() {
+        return solrTemplate;
+    }
+
+    public void setSolrTemplate(SolrOperations solrTemplate) {
+        this.solrTemplate = solrTemplate;
     }
 
     public String getQueryLogFileName() {

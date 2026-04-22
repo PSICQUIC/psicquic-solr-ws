@@ -81,7 +81,8 @@ docker-build:
     - sed -i -e "s|<IMAGE_TAG>|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
     - kubectl rollout restart deployment/psicquic-solr-ws-deployment
-    - kubectl get nodes
+    - kubectl rollout status deployment/psicquic-solr-ws-deployment --timeout=180s # Wait for rollout to complete
+    - kubectl get pods
   when: manual
 
 hh-test-deploy:
@@ -92,7 +93,7 @@ hh-test-deploy:
   environment:
     name: hh/test
     deployment_tier: testing
-    url: http://hh-rke-wp-webadmin-99-master-1.caas.ebi.ac.uk:31903/Tools/webservices/psicquic/intact/webservices/current/search/query/*?format=count
+    url: http://hh-rke-wp-webadmin-99-master-1.caas.ebi.ac.uk:31736/Tools/webservices/psicquic/intact/webservices/current/search/query/*?format=count
 
 hx-prod-deploy:
   extends: .kubernetes-deploy

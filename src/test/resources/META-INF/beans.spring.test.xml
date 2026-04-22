@@ -14,8 +14,6 @@
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
-    <bean name="javax.xml.ws.WebServiceContext" class="org.hupo.psi.mi.psicquic.ws.DummyWebServiceContext"/>
-
     <bean name="testPsicquicConfig" class="org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig">
         <property name="groupId" value="groupId"/>
         <property name="artifactId" value="artifactId"/>

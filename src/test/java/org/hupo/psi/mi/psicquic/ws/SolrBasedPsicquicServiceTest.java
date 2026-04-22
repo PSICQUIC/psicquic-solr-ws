@@ -15,21 +15,24 @@
  */
 package org.hupo.psi.mi.psicquic.ws;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.hupo.psi.mi.psicquic.DbRef;
 import org.hupo.psi.mi.psicquic.PsicquicService;
 import org.hupo.psi.mi.psicquic.QueryResponse;
 import org.hupo.psi.mi.psicquic.RequestInfo;
 import org.hupo.psi.mi.psicquic.indexing.batch.SolrMitabIndexer;
+import org.hupo.psi.mi.psicquic.indexing.batch.model.SolrInteraction;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
-import org.hupo.psi.mi.psicquic.model.server.SolrJettyRunner;
 import org.hupo.psi.mi.psicquic.ws.config.PsicquicConfig;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 
@@ -39,43 +42,31 @@ import java.util.Arrays;
  * @author Bruno Aranda (baranda@ebi.ac.uk)
  * @version $Id: SolrBasedPsicquicServiceTest.java 13961 2010-02-01 15:34:42Z brunoaranda $
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration( locations = {
+        "/META-INF/beans.spring.test.xml",
+        "classpath*:/META-INF/psicquic-spring.xml",
+        "/META-INF/psicquic-indexing-spring-test.xml"
+})
 public class SolrBasedPsicquicServiceTest {
 
-    private static PsicquicService service;
-
-    private static SolrJettyRunner solrJettyRunner;
+    @Autowired
+    private SolrOperations solrTemplate;
+    @Autowired
+    private SolrMitabIndexer solrMitabIndexer;
+    @Autowired
+    private PsicquicConfig testPsicquicConfig;
+    @Autowired
+    private PsicquicService solrBasedPsicquicService;
 
     @Before
     public void setupSolrPsicquicService() throws Exception {
+        solrMitabIndexer.startJob("mitabIndexMitab28Job");
 
-        // Start a jetty server to host the solr index
-        solrJettyRunner = new SolrJettyRunner();
-        solrJettyRunner.start();
+        SolrClient solrClient = solrTemplate.getSolrClient();
+        Assert.assertEquals(4L, solrClient.query(SolrInteraction.INTERACTIONS_CORE_NAME, new SolrQuery("*:*")).getResults().getNumFound());
 
-        // index data to be hosted by PSICQUIC
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"/META-INF/beans.spring.test.xml", "classpath*:/META-INF/psicquic-spring.xml",
-        "/META-INF/psicquic-indexing-spring-test.xml"});
-
-        SolrMitabIndexer indexer = (SolrMitabIndexer)context.getBean("solrMitabIndexer");
-        indexer.startJob("mitabIndexMitab28Job");
-
-        HttpSolrServer solrServer = solrJettyRunner.getSolrServer();
-        Assert.assertEquals(4L, solrServer.query(new SolrQuery("*:*")).getResults().getNumFound());
-
-        PsicquicConfig config = (PsicquicConfig)context.getBean("testPsicquicConfig");
-        config.setSolrUrl(solrJettyRunner.getSolrUrl());
-
-	    service = (PsicquicService) context.getBean("solrBasedPsicquicService");
-    }
-
-    @After
-    public void after() throws Exception {
-
-//        solrJettyRunner.join(); // keep the server running ...
-
-        solrJettyRunner.stop();
-        solrJettyRunner = null;
-        service = null;
+        testPsicquicConfig.setSolrTemplate(solrTemplate);
     }
 
     @Test
@@ -89,7 +80,7 @@ public class SolrBasedPsicquicServiceTest {
         dbRef.setId("P07228");
         dbRef.setDbAc("uniprotkb");
 
-        final QueryResponse response = service.getByInteractor(dbRef, info);
+        final QueryResponse response = solrBasedPsicquicService.getByInteractor(dbRef, info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
@@ -99,7 +90,7 @@ public class SolrBasedPsicquicServiceTest {
         dbRef2.setId("EBI-5606437");
         dbRef2.setDbAc("intact");
 
-        final QueryResponse response2 = service.getByInteractor(dbRef2, info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByInteractor(dbRef2, info);
 
         Assert.assertEquals(1, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response2.getResultSet().getMitab().split("\n").length);
@@ -109,7 +100,7 @@ public class SolrBasedPsicquicServiceTest {
         dbRef3.setId("RGD-receptor");
         dbRef3.setDbAc("uniprotkb");
 
-        final QueryResponse response3 = service.getByInteractor(dbRef3, info);
+        final QueryResponse response3 = solrBasedPsicquicService.getByInteractor(dbRef3, info);
 
         Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
@@ -118,7 +109,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef4 = new DbRef();
         dbRef4.setDbAc("uniprotkb");
 
-        final QueryResponse response4 = service.getByInteractor(dbRef4, info);
+        final QueryResponse response4 = solrBasedPsicquicService.getByInteractor(dbRef4, info);
 
         Assert.assertEquals(2, response4.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response4.getResultSet().getMitab().split("\n").length);
@@ -127,7 +118,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef5 = new DbRef();
         dbRef5.setId("RGD-receptor");
 
-        final QueryResponse response5 = service.getByInteractor(dbRef5, info);
+        final QueryResponse response5 = solrBasedPsicquicService.getByInteractor(dbRef5, info);
 
         Assert.assertEquals(1, response5.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response5.getResultSet().getMitab().split("\n").length);
@@ -143,7 +134,7 @@ public class SolrBasedPsicquicServiceTest {
         dbRef.setId("EBI-5630468");
         dbRef.setDbAc("intact");
 
-        final QueryResponse response = service.getByInteraction(dbRef, info);
+        final QueryResponse response = solrBasedPsicquicService.getByInteraction(dbRef, info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
 
@@ -151,7 +142,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef2 = new DbRef();
         dbRef2.setDbAc("intact");
 
-        final QueryResponse response2 = service.getByInteraction(dbRef2, info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByInteraction(dbRef2, info);
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
@@ -160,7 +151,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef3 = new DbRef();
         dbRef3.setId("EBI-5630468");
 
-        final QueryResponse response3 = service.getByInteraction(dbRef3, info);
+        final QueryResponse response3 = solrBasedPsicquicService.getByInteraction(dbRef3, info);
 
         Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
@@ -177,7 +168,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef2 = new DbRef();
         dbRef2.setId("P05556");
 
-        final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "OR");
+        final QueryResponse response = solrBasedPsicquicService.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "OR");
 
         Assert.assertEquals(2, response.getResultInfo().getTotalResults());
 
@@ -194,7 +185,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef2 = new DbRef();
         dbRef2.setId("P07228");
 
-        final QueryResponse response = service.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "AND");
+        final QueryResponse response = solrBasedPsicquicService.getByInteractorList(Arrays.asList(dbRef1, dbRef2), info, "AND");
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
 
@@ -211,7 +202,7 @@ public class SolrBasedPsicquicServiceTest {
         DbRef dbRef2 = new DbRef();
         dbRef2.setId("EBI-5630468");
 
-        final QueryResponse response = service.getByInteractionList(Arrays.asList(dbRef1, dbRef2), info);
+        final QueryResponse response = solrBasedPsicquicService.getByInteractionList(Arrays.asList(dbRef1, dbRef2), info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
     }
@@ -222,12 +213,12 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB25 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("direct interaction", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("direct interaction", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\"", info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByQuery("pmethod:\"western blot\"", info);
 
         Assert.assertEquals(1, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response2.getResultSet().getMitab().split("\n").length);
@@ -238,12 +229,12 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB26 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("direct interaction AND negative:(false OR true)", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("direct interaction AND negative:(false OR true)", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
@@ -254,12 +245,12 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB27 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("direct interaction AND negative:(false OR true)", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("direct interaction AND negative:(false OR true)", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByQuery("pmethod:\"western blot\" AND negative:(false OR true)", info);
 
         Assert.assertEquals(2, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response2.getResultSet().getMitab().split("\n").length);
@@ -271,19 +262,19 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_MITAB28 );
         info.setBlockSize(50);
 
-        final QueryResponse response = service.getByQuery("\"down regulates\" AND negative:(false OR true)", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("\"down regulates\" AND negative:(false OR true)", info);
         Assert.assertEquals(2, response.getResultInfo().getTotalResults());
         Assert.assertEquals(2, response.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response2 = service.getByQuery("bioeffect:kinase activity AND negative:(false OR true)", info);
+        final QueryResponse response2 = solrBasedPsicquicService.getByQuery("bioeffect:kinase activity AND negative:(false OR true)", info);
         Assert.assertEquals(4, response2.getResultInfo().getTotalResults());
         Assert.assertEquals(4, response2.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response3 = service.getByQuery("\"up regulates\" AND negative:true", info);
+        final QueryResponse response3 = solrBasedPsicquicService.getByQuery("\"up regulates\" AND negative:true", info);
         Assert.assertEquals(1, response3.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response3.getResultSet().getMitab().split("\n").length);
 
-        final QueryResponse response4 = service.getByQuery("\"antioxidant activity\"", info);
+        final QueryResponse response4 = solrBasedPsicquicService.getByQuery("\"antioxidant activity\"", info);
         Assert.assertEquals(1, response4.getResultInfo().getTotalResults());
         Assert.assertEquals(1, response4.getResultSet().getMitab().split("\n").length);
     }
@@ -294,7 +285,7 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
         info.setBlockSize(500);
 
-        final QueryResponse response = service.getByQuery("direct interaction", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("direct interaction", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertNull(response.getResultSet().getMitab());
@@ -308,7 +299,7 @@ public class SolrBasedPsicquicServiceTest {
         info.setResultType( PsicquicSolrServer.RETURN_TYPE_XML25 );
         info.setBlockSize(1000);
 
-        final QueryResponse response = service.getByQuery("direct interaction", info);
+        final QueryResponse response = solrBasedPsicquicService.getByQuery("direct interaction", info);
 
         Assert.assertEquals(1, response.getResultInfo().getTotalResults());
         Assert.assertNull(response.getResultSet().getMitab());
@@ -318,6 +309,6 @@ public class SolrBasedPsicquicServiceTest {
 
     @Test
     public void testGetVersion() {
-        Assert.assertEquals("TEST.VERSION", service.getVersion());
+        Assert.assertEquals("TEST.VERSION", solrBasedPsicquicService.getVersion());
     }
 }
