@@ -40,7 +40,7 @@ public interface PsicquicRestService10 {
                            @DefaultValue("") @QueryParam("db") String db,
                            @DefaultValue("tab25") @QueryParam("format") String format,
                            @DefaultValue("0") @QueryParam("firstResult") String firstResult,
-                           @DefaultValue("2147483647") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
+                           @DefaultValue("1000") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
             NotSupportedMethodException,
             NotSupportedTypeException;
 
@@ -50,7 +50,7 @@ public interface PsicquicRestService10 {
                             @DefaultValue("") @QueryParam("db") String db,
                             @DefaultValue("tab25") @QueryParam("format") String format,
                             @DefaultValue("0") @QueryParam("firstResult") String firstResult,
-                            @DefaultValue("2147483647") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
+                            @DefaultValue("1000") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
             NotSupportedMethodException,
             NotSupportedTypeException;
 
@@ -59,7 +59,7 @@ public interface PsicquicRestService10 {
     Object getByQuery(@PathParam("query") String query,
                       @DefaultValue("tab25") @QueryParam("format") String format,
                       @DefaultValue("0") @QueryParam("firstResult") String firstResult,
-                      @DefaultValue("2147483647") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
+                      @DefaultValue("1000") @QueryParam("maxResults") String maxResults) throws PsicquicServiceException,
             NotSupportedMethodException,
             NotSupportedTypeException;
 

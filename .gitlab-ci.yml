@@ -1,0 +1,116 @@
+image: docker:latest
+services:
+  - docker:stable-dind
+variables:
+  DOCKER_TLS_CERTDIR: ""
+stages:
+  - build-jar
+  - build-docker-image
+  - kubernetes-deploy
+
+maven-build:
+  image: maven:3.6-jdk-11
+  stage: build-jar
+  before_script:
+    - mvn compile install
+    - mkdir /builds/intact-ci/psicquic-solr-ws/war_files
+  script:
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:intact -Dservice.name=intact -Dmaven.test.skip=true
+    - mv target/intact-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:uniprot -Dservice.name=uniprot -Dmaven.test.skip=true
+    - mv target/uniprot-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:mbinfo -Dservice.name=mbinfo -Dmaven.test.skip=true
+    - mv target/mbinfo-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:mpidb -Dservice.name=mpidb -Dmaven.test.skip=true
+    - mv target/mpidb-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:mint -Dservice.name=mint -Dmaven.test.skip=true
+    - mv target/mint-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:bhf-ucl -Dservice.name=bhf-ucl -Dmaven.test.skip=true
+    - mv target/bhf-ucl-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter=source:hpidb -Dservice.name=hpidb -Dmaven.test.skip=true
+    - mv target/hpidb-psicquic-ws.war war_files/
+    - mvn clean package -B -s settings.xml -P psicquic-solr-ws -Dpsicquic.filter="(interaction_id:imex OR pubid:imex)" -Dservice.name=imex -Dmaven.test.skip=true
+    - mv target/imex-psicquic-ws.war war_files/
+    - mvn clean
+    - POM_VERSION=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+    - echo "IMAGE_TAG=$POM_VERSION-$CI_COMMIT_SHORT_SHA" > build.env
+  after_script:
+    - rm -rf ~/.m2/repository/*
+  artifacts:
+    paths:
+      - war_files/*.war
+    reports:
+      dotenv: build.env
+  when: manual
+
+docker-build:
+  stage: build-docker-image
+  needs: [ maven-build ]
+  before_script:
+    - unset DOCKER_HOST
+    - unset DOCKER_AUTH_CONFIG
+    - docker system prune -af
+  script:
+    - echo "$CI_DOCKER_HUB_PASSWORD" | docker login -u $CI_DOCKER_HUB_USER --password-stdin
+    - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker build -t "$CI_REGISTRY_IMAGE:$IMAGE_TAG" --no-cache .
+    - docker image ls
+    - docker logout
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+    - docker push "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker rmi "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - docker logout $CI_REGISTRY
+
+.kubernetes-deploy:
+  stage: kubernetes-deploy
+  image: alpine
+  before_script:
+    - apk add --no-cache curl git
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
+    - git clone https://k8s-config-token:$K8S_CONFIG_TOKEN@gitlab.ebi.ac.uk/intact-ci/k8s-config
+    - mkdir ~/.kube
+    - cp k8s-config/config ~/.kube/
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context $KUBE_CONTEXT
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
+    - kubectl get secrets gitlab-registry -o yaml
+    - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
+    - sed -i -e "s|<IMAGE_TAG>|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" k8s-deploy-config/k8s_deploy.yml
+    - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
+    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
+    - kubectl rollout status deployment/psicquic-solr-ws-deployment --timeout=180s # Wait for rollout to complete
+    - kubectl get pods
+  when: manual
+
+hh-test-deploy:
+  extends: .kubernetes-deploy
+  needs: [ maven-build, docker-build ]
+  variables:
+    KUBE_CONTEXT: hh-intact-test
+  environment:
+    name: hh/test
+    deployment_tier: testing
+    url: http://hh-rke-wp-webadmin-99-master-1.caas.ebi.ac.uk:31736/Tools/webservices/psicquic/intact/webservices/current/search/query/*?format=count
+
+hx-prod-deploy:
+  extends: .kubernetes-deploy
+  needs: [ maven-build, docker-build ]
+  variables:
+    KUBE_CONTEXT: hx-intact-prod
+  environment:
+    name: hx/prod
+    deployment_tier: production
+    url: http://hx-rke-wp-webadmin-78-master-1.caas.ebi.ac.uk:32280/Tools/webservices/psicquic/intact/webservices/current/search/query/*?format=count
+
+hh-prod-deploy:
+  extends: .kubernetes-deploy
+  needs: [ maven-build, docker-build ]
+  variables:
+    KUBE_CONTEXT: hh-intact-prod
+  environment:
+    name: hh/prod
+    deployment_tier: production
+    url: http://hh-rke-wp-webadmin-102-master-1.caas.ebi.ac.uk:31269/Tools/webservices/psicquic/intact/webservices/current/search/query/*?format=count

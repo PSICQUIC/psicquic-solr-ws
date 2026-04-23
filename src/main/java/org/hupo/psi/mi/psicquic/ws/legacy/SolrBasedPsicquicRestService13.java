@@ -21,10 +21,11 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hupo.psi.mi.psicquic.NotSupportedMethodException;
 import org.hupo.psi.mi.psicquic.NotSupportedTypeException;
 import org.hupo.psi.mi.psicquic.PsicquicServiceException;
+import org.hupo.psi.mi.psicquic.indexing.batch.model.SolrInteraction;
 import org.hupo.psi.mi.psicquic.model.PsicquicSearchResults;
 import org.hupo.psi.mi.psicquic.model.PsicquicSolrServer;
 import org.hupo.psi.mi.psicquic.ws.PsicquicRestService;
@@ -37,6 +38,10 @@ import org.hupo.psi.mi.psicquic.ws.utils.XgmmlStreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
 import org.springframework.stereotype.Controller;
 import psidev.psi.mi.calimocho.solr.converter.SolrFieldName;
 import psidev.psi.mi.xml254.jaxb.EntrySet;
@@ -103,9 +108,14 @@ public class SolrBasedPsicquicRestService13 implements PsicquicRestService {
 
     public synchronized PsicquicSolrServer getPsicquicSolrServer() {
         if (psicquicSolrServer == null) {
-            HttpSolrServer solrServer = new HttpSolrServer(config.getSolrUrl(), createHttpClient());
-
-            psicquicSolrServer = new PsicquicSolrServer(solrServer);
+            if (config.getSolrTemplate() != null) {
+                psicquicSolrServer = new PsicquicSolrServer(config.getSolrTemplate(), SolrInteraction.INTERACTIONS_CORE_NAME);
+            } else {
+                HttpSolrClient solrClient = new HttpSolrClient(config.getSolrUrl(), createHttpClient());
+                SolrClientFactory solrClientFactory = new MulticoreSolrClientFactory(solrClient);
+                SolrOperations solrTemplate = new SolrTemplate(solrClientFactory);
+                psicquicSolrServer = new PsicquicSolrServer(solrTemplate, SolrInteraction.INTERACTIONS_CORE_NAME);
+            }
         }
 
         return psicquicSolrServer;
