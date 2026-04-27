@@ -13,7 +13,6 @@ spec:
   selector:
     # Selects the disease-portal-client Deployment to attach the Service to
     app: psicquic-solr-ws
-    # Tell K8s this wants to expose an external port
   type: ClusterIP
 ---
 apiVersion: apps/v1
