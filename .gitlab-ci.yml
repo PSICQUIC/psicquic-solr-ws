@@ -80,7 +80,6 @@ docker-build:
     - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
     - sed -i -e "s|<IMAGE_TAG>|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
-    - kubectl rollout restart deployment/psicquic-solr-ws-deployment
     - kubectl rollout status deployment/psicquic-solr-ws-deployment --timeout=180s # Wait for rollout to complete
     - kubectl get pods
   when: manual
