@@ -75,8 +75,7 @@ docker-build:
   script:
     - kubectl config get-contexts
     - kubectl config use-context $KUBE_CONTEXT
-    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_JOB_TOKEN --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
-    - kubectl get secrets gitlab-registry -o yaml
+    - kubectl create secret docker-registry gitlab-registry --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD --docker-email=$GITLAB_USER_EMAIL --dry-run=client -o yaml | kubectl apply -f -
     - echo "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
     - sed -i -e "s|<IMAGE_TAG>|$CI_REGISTRY_IMAGE:$IMAGE_TAG|g" k8s-deploy-config/k8s_deploy.yml
     - kubectl apply -f k8s-deploy-config/k8s_deploy.yml
